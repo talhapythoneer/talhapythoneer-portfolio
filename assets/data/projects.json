@@ -1,0 +1,246 @@
+{
+  "projects": [
+    {
+      "id": 1,
+      "projectType": "Web Scraping",
+      "title": "Indeed Scraper",
+      "imagePath": "assets/img/projects/indeed.png",
+      "shortDescription": "Scraping Jobs from Indeed",
+      "toolsStack": ["Python", "BeautifulSoup", "Selenium", "Pandas", "Requests"],
+      "features": [
+        "Extracts job listings with titles, companies, locations, and salaries",
+        "Handles pagination automatically across multiple pages",
+        "Filters jobs by location, experience level, and job type",
+        "Exports data to CSV, Excel, and JSON formats",
+        "Includes duplicate detection and data validation"
+      ],
+      "businessBenefits": [
+        "HR agencies can find candidates faster with automated job searches",
+        "Recruitment firms can analyze market trends and salary benchmarks",
+        "Companies can monitor competitor job postings and hiring patterns",
+        "Job boards can aggregate listings from multiple sources automatically",
+        "Reduces manual research time by 90% for talent acquisition teams"
+      ]
+    },
+    {
+      "id": 2,
+      "projectType": "Web Scraping",
+      "title": "SHOTDECK Scraper",
+      "imagePath": "assets/img/projects/shotdeck.png",
+      "shortDescription": "Downloading large number of movies' stills and clips",
+      "toolsStack": ["Python", "Selenium", "Requests", "Pillow", "FFmpeg"],
+      "features": [
+        "Downloads high-resolution movie stills and video clips",
+        "Extracts metadata including film title, director, year, and scene descriptions",
+        "Handles authentication and session management",
+        "Supports batch downloading with configurable limits",
+        "Organizes files by movie, director, or genre"
+      ],
+      "businessBenefits": [
+        "Film schools can build reference libraries for teaching cinematography",
+        "Production companies can create mood boards and visual references",
+        "Marketing agencies can access visual content for campaigns",
+        "Researchers can analyze visual trends across film history",
+        "Streaming platforms can enhance their content discovery interfaces"
+      ]
+    },
+    {
+      "id": 3,
+      "projectType": "Web Scraping",
+      "title": "Real Estate Scraper",
+      "imagePath": "assets/img/projects/redfin.png",
+      "shortDescription": "Scraping real estate data from redfin.com",
+      "toolsStack": ["Python", "Scrapy", "Selenium", "PostgreSQL", "GeoPandas"],
+      "features": [
+        "Extracts property details including price, square footage, bedrooms, bathrooms",
+        "Captures historical price data and property tax information",
+        "Maps property locations with geographic coordinates",
+        "Tracks property status changes (active, pending, sold)",
+        "Calculates price per square foot and market trends"
+      ],
+      "businessBenefits": [
+        "Real estate investors can identify undervalued properties and investment opportunities",
+        "Agents can analyze competitive listings and market positioning",
+        "Appraisal companies can access comprehensive property data for valuations",
+        "Property developers can identify land acquisition opportunities",
+        "Financial institutions can assess property values for lending decisions"
+      ]
+    },
+    {
+      "id": 4,
+      "projectType": "Web Scraping",
+      "title": "Yellowpages Scraper",
+      "imagePath": "assets/img/projects/yellowpages.png",
+      "shortDescription": "Scraping leads from Yellowpages",
+      "toolsStack": ["Python", "BeautifulSoup", "Requests", "MongoDB", "Redis"],
+      "features": [
+        "Extracts business listings with contact information and categories",
+        "Captures business hours, services offered, and customer reviews",
+        "Geolocates businesses for territory-based lead generation",
+        "Filters businesses by category, location, and rating",
+        "Validates contact information and removes duplicates"
+      ],
+      "businessBenefits": [
+        "B2B companies can build targeted lead lists for sales outreach",
+        "Marketing agencies can identify local businesses for campaign targeting",
+        "Service providers can find potential clients in specific geographic areas",
+        "Research firms can analyze business distribution and market saturation",
+        "Startups can identify partnership opportunities with established businesses"
+      ]
+    },
+    {
+      "id": 5,
+      "projectType": "Web Scraping",
+      "title": "Opensea NFT Scraper",
+      "imagePath": "assets/img/projects/opensea.png",
+      "shortDescription": "Scraping NFTs Activity from Opensea",
+      "toolsStack": ["Python", "Playwright", "GraphQL", "Web3.py", "Pandas"],
+      "features": [
+        "Tracks NFT sales, listings, and bids in real-time",
+        "Extracts metadata including artwork, creator, collection, and traits",
+        "Monitors price fluctuations and trading volume",
+        "Identifies trending collections and top sellers",
+        "Analyzes wallet activity and investor patterns"
+      ],
+      "businessBenefits": [
+        "NFT investors can make data-driven investment decisions",
+        "Market analysts can track NFT market trends and valuations",
+        "Artists can research pricing strategies for their NFT collections",
+        "Platforms can aggregate NFT data for analytics dashboards",
+        "Financial services can assess NFT collateral for lending purposes"
+      ]
+    },
+    {
+      "id": 6,
+      "projectType": "Web Scraping",
+      "title": "Crypto Scraper",
+      "imagePath": "assets/img/projects/coinmarketcap.png",
+      "shortDescription": "Scraping Crypto Data from CoinMarketCap",
+      "toolsStack": ["Python", "Requests", "BeautifulSoup", "SQLite", "Matplotlib"],
+      "features": [
+        "Extracts cryptocurrency prices, market caps, and trading volumes",
+        "Tracks price changes over multiple timeframes (24h, 7d, 30d)",
+        "Monitors circulating supply, max supply, and fully diluted valuation",
+        "Captures exchange listings and trading pairs",
+        "Generates historical price charts and volatility analysis"
+      ],
+      "businessBenefits": [
+        "Crypto traders can access real-time market data for trading decisions",
+        "Investment firms can monitor portfolio performance and market trends",
+        "Financial news outlets can source cryptocurrency data for reporting",
+        "Blockchain projects can track their token performance and adoption",
+        "Researchers can analyze cryptocurrency market correlations and patterns"
+      ]
+    },
+    {
+      "id": 7,
+      "projectType": "Web Scraping",
+      "title": "All Recipes Scraper",
+      "imagePath": "assets/img/projects/allrecipes.png",
+      "shortDescription": "Scraping recipes data from AllRecipes",
+      "toolsStack": ["Python", "Scrapy", "BeautifulSoup", "PostgreSQL", "NLTK"],
+      "features": [
+        "Extracts recipes with ingredients, instructions, and nutritional information",
+        "Captures user ratings, reviews, and cooking times",
+        "Categorizes recipes by cuisine, dietary restrictions, and meal type",
+        "Analyzes ingredient substitution patterns and recipe variations",
+        "Generates shopping lists based on selected recipes"
+      ],
+      "businessBenefits": [
+        "Food delivery services can suggest recipes based on available ingredients",
+        "Meal kit companies can analyze popular recipes for their offerings",
+        "Nutrition apps can access comprehensive recipe databases",
+        "Supermarkets can create targeted promotions based on trending recipes",
+        "Cooking websites can enhance their content with aggregated recipe data"
+      ]
+    },
+    {
+      "id": 8,
+      "projectType": "Agentic AI",
+      "title": "AI Research Assistant",
+      "imagePath": "assets/img/projects/cake.png",
+      "shortDescription": "Automated literature review and research paper analysis",
+      "toolsStack": ["Python", "OpenAI API", "LangChain", "Pinecone", "FastAPI"],
+      "features": [
+        "Automatically reads and summarizes research papers from PDFs",
+        "Extracts key findings, methodologies, and conclusions",
+        "Identifies connections between different research papers",
+        "Generates literature reviews and research gap analysis",
+        "Answers specific research questions based on paper content"
+      ],
+      "businessBenefits": [
+        "Researchers can save weeks of literature review time",
+        "Universities can help students with research paper analysis",
+        "Pharmaceutical companies can monitor competitor research",
+        "Consulting firms can quickly understand new market domains",
+        "R&D departments can stay updated on latest innovations"
+      ]
+    },
+    {
+      "id": 9,
+      "projectType": "Agentic AI",
+      "title": "Customer Support Automation",
+      "imagePath": "assets/img/projects/submarine.png",
+      "shortDescription": "AI-powered customer query resolution system",
+      "toolsStack": ["Python", "GPT-4", "Vector Databases", "FastAPI", "Docker"],
+      "features": [
+        "Understands and classifies customer queries in real-time",
+        "Provides accurate responses based on knowledge base",
+        "Escalates complex issues to human agents when needed",
+        "Learns from resolved tickets to improve future responses",
+        "Supports multiple languages and communication channels"
+      ],
+      "businessBenefits": [
+        "Reduces customer support response time by 80%",
+        "Lowers support costs by handling routine queries automatically",
+        "Improves customer satisfaction with 24/7 availability",
+        "Frees human agents to focus on complex, high-value issues",
+        "Provides consistent and accurate information to customers"
+      ]
+    },
+    {
+      "id": 10,
+      "projectType": "Web Development",
+      "title": "Portfolio Website",
+      "imagePath": "assets/img/portfolio/cake.png",
+      "shortDescription": "Responsive portfolio website with interactive elements",
+      "toolsStack": ["HTML5", "CSS3", "JavaScript", "Bootstrap", "D3.js"],
+      "features": [
+        "Fully responsive design that works on all devices",
+        "Interactive neural network animation in the hero section",
+        "World map visualization for client testimonials",
+        "Smooth animations and transitions throughout",
+        "Modal-based project detail viewing system"
+      ],
+      "businessBenefits": [
+        "Showcases technical skills and project portfolio effectively",
+        "Improves professional credibility and online presence",
+        "Attracts potential clients and employers with interactive features",
+        "Demonstrates modern web development capabilities",
+        "Serves as a living example of front-end development skills"
+      ]
+    },
+    {
+      "id": 11,
+      "projectType": "Web Development",
+      "title": "E-commerce Dashboard",
+      "imagePath": "assets/img/portfolio/circus.png",
+      "shortDescription": "Real-time analytics dashboard for e-commerce businesses",
+      "toolsStack": ["React", "Node.js", "Express", "MongoDB", "Chart.js"],
+      "features": [
+        "Real-time sales tracking and revenue visualization",
+        "Inventory management with low-stock alerts",
+        "Customer behavior analysis and segmentation",
+        "Order processing and fulfillment tracking",
+        "Multi-store management for retail chains"
+      ],
+      "businessBenefits": [
+        "Business owners can monitor store performance in real-time",
+        "Reduces inventory costs with smart stock management",
+        "Improves customer retention with behavior insights",
+        "Streamlines order processing and fulfillment operations",
+        "Enables data-driven decision making for business growth"
+      ]
+    }
+  ]
+}
