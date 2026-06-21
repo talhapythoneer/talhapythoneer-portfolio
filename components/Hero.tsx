@@ -45,6 +45,28 @@ function TypingText() {
   );
 }
 
+function ProfilePhoto({ size = "w-64 h-64 md:w-80 md:h-80" }: { size?: string }) {
+  return (
+    <div className={`relative ${size}`}>
+      <div className="absolute inset-0 rounded-full bg-[#E11D48]/10 animate-[spin_12s_linear_infinite]">
+        <div className="absolute inset-4 rounded-full border border-dashed border-[#E11D48]/20" />
+      </div>
+      <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#E11D48]/20 to-transparent animate-pulse" />
+
+      <div className="relative z-10 w-full h-full rounded-full overflow-hidden border-2 border-[#E11D48]/40 shadow-[0_0_60px_rgba(225,29,72,0.2)]">
+        <Image
+          src="/assets/img/porifle_v1.png"
+          alt="Talha Pythoneer - Python Developer and Web Scraping Expert"
+          fill
+          className="object-cover"
+          priority
+          sizes="(max-width: 768px) 256px, 320px"
+        />
+      </div>
+    </div>
+  );
+}
+
 const container: Variants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.12 } },
@@ -85,6 +107,11 @@ export default function Hero() {
             Hi, I&apos;m{" "}
             <span className="text-gradient">Talha</span>
           </motion.h1>
+
+          {/* Mobile-only photo — visible on first render right under the name */}
+          <motion.div variants={item} className="lg:hidden flex justify-center my-8">
+            <ProfilePhoto size="w-44 h-44 sm:w-52 sm:h-52" />
+          </motion.div>
 
           <motion.div variants={item} className="text-xl md:text-2xl text-[#A3A3A3] mb-8 h-8">
             <TypingText />
@@ -156,25 +183,9 @@ export default function Hero() {
           initial={{ opacity: 0, scale: 0.85, rotateY: -15 }}
           animate={{ opacity: 1, scale: 1, rotateY: 0 }}
           transition={{ duration: 0.9, ease: [0.25, 0.46, 0.45, 0.94], delay: 0.3 }}
-          className="relative flex-shrink-0"
+          className="relative flex-shrink-0 hidden lg:block"
         >
-          <div className="relative w-64 h-64 md:w-80 md:h-80">
-            <div className="absolute inset-0 rounded-full bg-[#E11D48]/10 animate-[spin_12s_linear_infinite]">
-              <div className="absolute inset-4 rounded-full border border-dashed border-[#E11D48]/20" />
-            </div>
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#E11D48]/20 to-transparent animate-pulse" />
-
-            <div className="relative z-10 w-full h-full rounded-full overflow-hidden border-2 border-[#E11D48]/40 shadow-[0_0_60px_rgba(225,29,72,0.2)]">
-              <Image
-                src="/assets/img/porifle_v1.png"
-                alt="Talha Pythoneer - Python Developer and Web Scraping Expert"
-                fill
-                className="object-cover"
-                priority
-                sizes="(max-width: 768px) 256px, 320px"
-              />
-            </div>
-          </div>
+          <ProfilePhoto />
         </motion.div>
       </div>
 
