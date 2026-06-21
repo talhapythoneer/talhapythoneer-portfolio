@@ -7,6 +7,7 @@ import SectionHeading from "@/components/SectionHeading";
 import ProjectCard from "@/components/portfolio/ProjectCard";
 import ProjectModal from "@/components/portfolio/ProjectModal";
 import ReviewCard from "@/components/ReviewCard";
+import TrustedBy from "@/components/TrustedBy";
 import { projects, type Project, type ProjectType } from "@/data/projects";
 import { featuredReviews, orderReviews } from "@/data/reviews";
 
@@ -132,6 +133,10 @@ export default function PortfolioPage() {
             </a>
           </div>
         </div>
+      </div>
+
+      <div className="mt-24">
+        <TrustedBy />
       </div>
 
       <ProjectModal project={selected} onClose={() => setSelected(null)} />
