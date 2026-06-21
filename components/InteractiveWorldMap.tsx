@@ -49,10 +49,11 @@ interface PanelState {
   reviews: Review[];
   x: number;
   y: number;
+  w: number;
 }
 
 const PANEL_W = 320;
-const PANEL_H = 300;
+const PANEL_H = 280;
 
 function PanelAvatar({ review }: { review: Review }) {
   const [failed, setFailed] = useState(false);
@@ -88,6 +89,46 @@ export default function InteractiveWorldMap({
   const [geographies, setGeographies] = useState<any[]>([]);
   const reviews = useReviews();
   const [panel, setPanel] = useState<PanelState | null>(null);
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const dragRef = useRef<{ x: number; y: number } | null>(null);
+  const draggingRef = useRef(false);
+
+  const clampPan = (p: { x: number; y: number }, z: number) => ({
+    x: Math.max(-(z - 1) * 400, Math.min((z - 1) * 400, p.x)),
+    y: Math.max(-(z - 1) * 250, Math.min((z - 1) * 250, p.y)),
+  });
+  const zoomBy = (factor: number) =>
+    setZoom((z) => {
+      const nz = Math.max(1, Math.min(5, +(z * factor).toFixed(3)));
+      setPan((p) => clampPan(p, nz));
+      return nz;
+    });
+  const resetView = () => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  };
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    dragRef.current = { x: e.clientX, y: e.clientY };
+  };
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (!dragRef.current) return;
+    const s = svgRef.current?.getBoundingClientRect();
+    const scale = s ? Math.min(s.width / 800, s.height / 500) || 1 : 1;
+    const ddx = e.clientX - dragRef.current.x;
+    const ddy = e.clientY - dragRef.current.y;
+    if (Math.hypot(ddx, ddy) > 3) draggingRef.current = true;
+    dragRef.current = { x: e.clientX, y: e.clientY };
+    setPan((p) => clampPan({ x: p.x + ddx / scale, y: p.y + ddy / scale }, zoom));
+  };
+  const onPointerUp = () => {
+    dragRef.current = null;
+    // clear the drag flag next tick so the trailing click/hover is ignored
+    setTimeout(() => {
+      draggingRef.current = false;
+    }, 0);
+  };
 
   useEffect(() => {
     fetch("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json")
@@ -164,6 +205,7 @@ export default function InteractiveWorldMap({
   };
 
   const openPanel = (code: string) => {
+    if (draggingRef.current) return; // don't pop while panning the map
     cancelClose();
     const info = byCode.get(code);
     if (!info) return;
@@ -173,21 +215,27 @@ export default function InteractiveWorldMap({
     const svg = svgRef.current;
     const cont = containerRef.current;
     const base = { code, name: info.name, count: info.count, reviews: orderReviews(info.reviews) };
+    const cont0 = cont?.getBoundingClientRect();
+    // Responsive width: never wider than the map (minus margins) — fixes
+    // the card overflowing off the right edge on small screens.
+    const pw = Math.min(PANEL_W, (cont0?.width ?? 360) - 24);
 
-    if (!centroid || !svg || !cont) {
-      setPanel({ ...base, x: 16, y: 64 });
+    if (!centroid || !svg || !cont0) {
+      setPanel({ ...base, x: 12, y: 56, w: pw });
       return;
     }
     const s = svg.getBoundingClientRect();
-    const c = cont.getBoundingClientRect();
     const scale = Math.min(s.width / 800, s.height / 500);
     const offX = (s.width - 800 * scale) / 2;
     const offY = (s.height - 500 * scale) / 2;
-    let x = s.left - c.left + offX + centroid.x * scale + 14;
-    let y = s.top - c.top + offY + centroid.y * scale - PANEL_H / 2;
-    x = Math.max(8, Math.min(x, c.width - PANEL_W - 8));
-    y = Math.max(8, Math.min(y, c.height - PANEL_H - 8));
-    setPanel({ ...base, x, y });
+    // apply current zoom/pan to the centroid (same transform as the <g>)
+    const tx = (centroid.x - 400) * zoom + 400 + pan.x;
+    const ty = (centroid.y - 250) * zoom + 250 + pan.y;
+    let x = s.left - cont0.left + offX + tx * scale + 14;
+    let y = s.top - cont0.top + offY + ty * scale - PANEL_H / 2;
+    x = Math.max(8, Math.min(x, cont0.width - pw - 8));
+    y = Math.max(8, Math.min(y, cont0.height - PANEL_H - 8));
+    setPanel({ ...base, x, y, w: pw });
   };
 
   const closePanel = () => {
@@ -261,8 +309,20 @@ export default function InteractiveWorldMap({
             Loading Map Engine...
           </div>
         ) : (
-          <svg ref={svgRef} viewBox="0 0 800 500" className="w-full h-full">
-            <g className="stroke-[#1A1A1A] stroke-[0.5px]">
+          <svg
+            ref={svgRef}
+            viewBox="0 0 800 500"
+            className="w-full h-full touch-none select-none"
+            style={{ cursor: zoom > 1 ? (dragRef.current ? "grabbing" : "grab") : "default" }}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            onPointerLeave={onPointerUp}
+          >
+            <g
+              className="stroke-[#1A1A1A] stroke-[0.5px]"
+              transform={`translate(${pan.x} ${pan.y}) translate(400 250) scale(${zoom}) translate(-400 -250)`}
+            >
               {geographies.map((geo, i) => {
                 const code = TOPONAME_TO_CODE[geo.properties.name];
                 const info = code ? byCode.get(code) : undefined;
@@ -284,11 +344,42 @@ export default function InteractiveWorldMap({
                     style={hasReviews ? { cursor: "pointer" } : undefined}
                     onMouseEnter={() => hasReviews && openPanel(code!)}
                     onMouseLeave={() => hasReviews && scheduleClose()}
+                    onClick={() => hasReviews && openPanel(code!)}
                   />
                 );
               })}
             </g>
           </svg>
+        )}
+
+        {/* Zoom controls */}
+        {!loading && (
+          <div className="absolute bottom-3 right-3 z-20 flex flex-col gap-1.5">
+            <button
+              onClick={() => zoomBy(1.4)}
+              aria-label="Zoom in"
+              className="w-9 h-9 flex items-center justify-center rounded-lg bg-[#0A0A0A]/90 border border-[#262626] text-[#FAFAFA] text-lg leading-none hover:border-[#E11D48] hover:text-[#E11D48] transition-colors"
+            >
+              +
+            </button>
+            <button
+              onClick={() => zoomBy(1 / 1.4)}
+              aria-label="Zoom out"
+              className="w-9 h-9 flex items-center justify-center rounded-lg bg-[#0A0A0A]/90 border border-[#262626] text-[#FAFAFA] text-lg leading-none hover:border-[#E11D48] hover:text-[#E11D48] transition-colors"
+            >
+              −
+            </button>
+            <button
+              onClick={resetView}
+              aria-label="Reset view"
+              className="w-9 h-9 flex items-center justify-center rounded-lg bg-[#0A0A0A]/90 border border-[#262626] text-[#A3A3A3] hover:border-[#E11D48] hover:text-[#E11D48] transition-colors"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 12a9 9 0 1 0 9-9 9 9 0 0 0-6.4 2.6L3 8" />
+                <path d="M3 4v4h4" />
+              </svg>
+            </button>
+          </div>
         )}
       </div>
 
@@ -300,6 +391,7 @@ export default function InteractiveWorldMap({
               key={c.code}
               onMouseEnter={() => openPanel(c.code)}
               onMouseLeave={scheduleClose}
+              onClick={() => openPanel(c.code)}
               className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-mono transition-all duration-200 ${
                 panel?.code === c.code
                   ? "border-[#E11D48] bg-[#E11D48]/10 text-[#FAFAFA]"
@@ -325,7 +417,7 @@ export default function InteractiveWorldMap({
             onMouseEnter={cancelClose}
             onMouseLeave={closePanel}
             className="absolute z-30 pointer-events-auto bg-[#070707]/95 backdrop-blur-md border border-[#E11D48]/30 rounded-xl shadow-2xl overflow-hidden flex flex-col"
-            style={{ left: panel.x, top: panel.y, width: PANEL_W, maxHeight: PANEL_H }}
+            style={{ left: panel.x, top: panel.y, width: panel.w, maxHeight: PANEL_H }}
           >
             <div className="flex items-center gap-3 px-4 py-3 border-b border-[#171717] bg-gradient-to-r from-[#E11D48]/10 to-transparent flex-shrink-0">
               <Flag code={panel.code} className="w-8 h-6 shadow-md" />
