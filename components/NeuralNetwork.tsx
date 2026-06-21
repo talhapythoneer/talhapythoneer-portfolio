@@ -5,6 +5,8 @@ import { useEffect, useRef } from "react";
 interface Node {
   x: number;
   y: number;
+  hx: number; // home position — nodes spring back here so the net is static at rest
+  hy: number;
   vx: number;
   vy: number;
   radius: number;
@@ -14,6 +16,7 @@ interface Node {
 export default function NeuralNetwork() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>(0);
+  const runningRef = useRef(false);
   const nodesRef = useRef<Node[]>([]);
   const mouseRef = useRef({ x: -9999, y: -9999 });
   const sizeRef = useRef({ w: 0, h: 0 });
@@ -29,13 +32,15 @@ export default function NeuralNetwork() {
     const seedNodes = (w: number, h: number) => {
       const count = Math.max(28, Math.min(80, Math.floor((w * h) / 15000)));
       nodesRef.current = Array.from({ length: count }, () => {
-        const angle = Math.random() * Math.PI * 2;
-        const speed = 0.3 + Math.random() * 0.5; // varied drift speeds
+        const x = Math.random() * w;
+        const y = Math.random() * h;
         return {
-          x: Math.random() * w,
-          y: Math.random() * h,
-          vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed,
+          x,
+          y,
+          hx: x,
+          hy: y,
+          vx: 0,
+          vy: 0,
           radius: Math.random() * 2 + 1.6,
           pop: 0,
         };
@@ -52,78 +57,54 @@ export default function NeuralNetwork() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // draw in CSS pixels, crisp on retina
       if (nodesRef.current.length === 0 || sizeRef.current.w === 0) seedNodes(w, h);
       sizeRef.current = { w, h };
+      kick(); // redraw after layout changes
     };
 
-    const ro = new ResizeObserver(resize);
-    ro.observe(canvas);
-    resize();
-
-    // Listen on window so hovering anywhere over the hero (including over the
-    // text/photo that sit above the canvas) still drives the interaction.
-    const onMouseMove = (e: MouseEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      mouseRef.current =
-        x >= 0 && y >= 0 && x <= rect.width && y <= rect.height
-          ? { x, y }
-          : { x: -9999, y: -9999 };
-    };
-    window.addEventListener("mousemove", onMouseMove);
-
-    const LINK_DIST = 155;
+    const LINK_DIST = 155; // max distance to draw a connecting line
     const REPEL_DIST = 150; // cursor influence radius
-    const MIN_SPEED = 0.25; // baseline drift so the network is always moving
-    const MAX_SPEED = 2.6; // cap (higher so bouncy pushes read clearly)
+    const MAX_SPEED = 3.5; // cap so bouncy pushes don't fling nodes off
+    const SPRING = 0.035; // pull back toward home
+    const DAMP = 0.86; // settle velocity
 
-    const draw = () => {
+    const render = () => {
       const { w, h } = sizeRef.current;
-      if (w === 0 || h === 0) {
-        animRef.current = requestAnimationFrame(draw);
-        return;
-      }
       ctx.clearRect(0, 0, w, h);
-
       const nodes = nodesRef.current;
       const mouse = mouseRef.current;
 
-      nodes.forEach((node) => {
-        node.x += node.vx;
-        node.y += node.vy;
-        if (node.x < 0 || node.x > w) node.vx *= -1;
-        if (node.y < 0 || node.y > h) node.vy *= -1;
-        node.x = Math.max(0, Math.min(w, node.x));
-        node.y = Math.max(0, Math.min(h, node.y));
+      let active = false;
 
-        // Bouncy cursor interaction: nodes are pushed away (repelled) and get
-        // a "pop" impulse the closer the cursor is, then spring back.
+      nodes.forEach((node) => {
+        // Bouncy cursor interaction: repel + a decaying "pop" scale impulse.
         const dx = mouse.x - node.x;
         const dy = mouse.y - node.y;
         const dist = Math.hypot(dx, dy);
         if (dist < REPEL_DIST && dist > 0) {
-          const t = (REPEL_DIST - dist) / REPEL_DIST; // 0..1
-          const force = t * t * 1.6; // springy falloff
+          const t = (REPEL_DIST - dist) / REPEL_DIST;
+          const force = t * t * 1.8;
           node.vx -= (dx / dist) * force;
           node.vy -= (dy / dist) * force;
           node.pop = Math.max(node.pop, t);
         }
-        node.pop *= 0.9; // decay the bounce
 
-        // Keep nodes perpetually drifting: clamp speed to [MIN, MAX] so they
-        // never decay to a standstill and never run away after cursor pushes.
-        let sp = Math.hypot(node.vx, node.vy);
-        if (sp < 1e-4) {
-          const a = Math.random() * Math.PI * 2;
-          node.vx = Math.cos(a);
-          node.vy = Math.sin(a);
-          sp = 1;
-        }
-        if (sp < MIN_SPEED) {
-          node.vx = (node.vx / sp) * MIN_SPEED;
-          node.vy = (node.vy / sp) * MIN_SPEED;
-        } else if (sp > MAX_SPEED) {
+        // Spring back toward home so the network is static when undisturbed.
+        node.vx += (node.hx - node.x) * SPRING;
+        node.vy += (node.hy - node.y) * SPRING;
+        node.vx *= DAMP;
+        node.vy *= DAMP;
+
+        const sp = Math.hypot(node.vx, node.vy);
+        if (sp > MAX_SPEED) {
           node.vx = (node.vx / sp) * MAX_SPEED;
           node.vy = (node.vy / sp) * MAX_SPEED;
+        }
+
+        node.x += node.vx;
+        node.y += node.vy;
+        node.pop *= 0.9;
+
+        if (sp > 0.05 || node.pop > 0.01 || Math.hypot(node.x - node.hx, node.y - node.hy) > 0.4) {
+          active = true;
         }
       });
 
@@ -152,10 +133,9 @@ export default function NeuralNetwork() {
         const glow = Math.min(1, (near ? (1 - dist / 130) * 0.6 : 0) + node.pop * 0.5 + 0.5);
         const r = node.radius * (1 + node.pop * 1.3); // bounce scale
 
-        // soft glow halo (always a little, more when popped/near)
         ctx.beginPath();
         ctx.arc(node.x, node.y, r + 4 + node.pop * 6, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(244, 63, 94, ${(node.pop * 0.25 + (near ? 0.12 : 0.06))})`;
+        ctx.fillStyle = `rgba(244, 63, 94, ${node.pop * 0.25 + (near ? 0.12 : 0.06)})`;
         ctx.fill();
 
         ctx.beginPath();
@@ -164,13 +144,59 @@ export default function NeuralNetwork() {
         ctx.fill();
       });
 
-      if (!prefersReduced) animRef.current = requestAnimationFrame(draw);
+      return active;
     };
 
-    draw(); // reduced-motion users get a single static frame
+    const loop = () => {
+      const { w, h } = sizeRef.current;
+      if (w === 0 || h === 0) {
+        animRef.current = requestAnimationFrame(loop);
+        return;
+      }
+      const mouse = mouseRef.current;
+      const mouseInBounds = mouse.x >= 0 && mouse.y >= 0 && mouse.x <= w && mouse.y <= h;
+      const active = render();
+      // Keep animating only while the cursor is over the hero or nodes are still
+      // settling; otherwise stop so the network sits perfectly static.
+      if (!prefersReduced && (mouseInBounds || active)) {
+        animRef.current = requestAnimationFrame(loop);
+      } else {
+        runningRef.current = false;
+      }
+    };
+
+    // Start (or restart) the loop on demand.
+    const kick = () => {
+      if (prefersReduced) {
+        render();
+        return;
+      }
+      if (!runningRef.current) {
+        runningRef.current = true;
+        animRef.current = requestAnimationFrame(loop);
+      }
+    };
+
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
+    resize();
+    render(); // initial static frame
+
+    // Listen on window so hovering anywhere over the hero (including over the
+    // text/photo that sit above the canvas) still drives the interaction.
+    const onMouseMove = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const inBounds = x >= 0 && y >= 0 && x <= rect.width && y <= rect.height;
+      mouseRef.current = inBounds ? { x, y } : { x: -9999, y: -9999 };
+      if (inBounds) kick();
+    };
+    window.addEventListener("mousemove", onMouseMove);
 
     return () => {
       cancelAnimationFrame(animRef.current);
+      runningRef.current = false;
       ro.disconnect();
       window.removeEventListener("mousemove", onMouseMove);
     };

@@ -93,7 +93,10 @@ export default function InteractiveWorldMap({
       .then((res) => res.json())
       .then((data) => {
         const countries = topojson.feature(data, data.objects.countries) as any;
-        setGeographies(countries.features);
+        // Drop Antarctica: it has no clients and stretches to infinity in Mercator.
+        setGeographies(
+          countries.features.filter((f: any) => f.properties.name !== "Antarctica")
+        );
       })
       .catch((err) => console.error("Error loading map data:", err));
   }, []);
@@ -119,7 +122,23 @@ export default function InteractiveWorldMap({
     [byCode]
   );
 
-  const projection = useMemo(() => geoMercator().scale(100).translate([400, 250]), []);
+  // Auto-fit all loaded countries into the viewBox (with padding) so the map is
+  // always fully visible and responsive — no manual scale/translate guessing.
+  const projection = useMemo(() => {
+    const p = geoMercator();
+    if (geographies.length > 0) {
+      p.fitExtent(
+        [
+          [24, 20],
+          [776, 480],
+        ],
+        { type: "FeatureCollection", features: geographies } as any
+      );
+    } else {
+      p.scale(120).translate([400, 250]);
+    }
+    return p;
+  }, [geographies]);
   const pathGenerator = useMemo(() => geoPath().projection(projection), [projection]);
 
   // Centroid (viewBox coords) per country code we can place on the map.
