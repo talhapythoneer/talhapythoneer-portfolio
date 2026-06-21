@@ -220,6 +220,13 @@ export default function InteractiveWorldMap({
     // the card overflowing off the right edge on small screens.
     const pw = Math.min(PANEL_W, (cont0?.width ?? 360) - 24);
 
+    // On small screens, center the card near the top of the map so it's
+    // always fully visible instead of cramped beside a tiny country.
+    if (cont0 && cont0.width < 640) {
+      setPanel({ ...base, x: Math.max(8, (cont0.width - pw) / 2), y: 10, w: pw });
+      return;
+    }
+
     if (!centroid || !svg || !cont0) {
       setPanel({ ...base, x: 12, y: 56, w: pw });
       return;
@@ -266,7 +273,7 @@ export default function InteractiveWorldMap({
     let last = performance.now();
     let pausedUntil = 0;
     const bump = () => {
-      pausedUntil = performance.now() + 1400;
+      pausedUntil = performance.now() + 900;
     };
     el.addEventListener("wheel", bump, { passive: true });
     el.addEventListener("touchmove", bump, { passive: true });
@@ -276,15 +283,15 @@ export default function InteractiveWorldMap({
       last = now;
       const max = el.scrollHeight - el.clientHeight;
       if (now > pausedUntil && max > 2) {
-        el.scrollTop += dir * dt * 0.04;
+        el.scrollTop += dir * dt * 0.09; // faster auto-scroll
         if (el.scrollTop >= max) {
           el.scrollTop = max;
           dir = -1;
-          pausedUntil = now + 900; // pause at the bottom
+          pausedUntil = now + 500; // brief pause at the bottom
         } else if (el.scrollTop <= 0) {
           el.scrollTop = 0;
           dir = 1;
-          pausedUntil = now + 900; // pause at the top
+          pausedUntil = now + 500; // brief pause at the top
         }
       }
       raf = requestAnimationFrame(step);
