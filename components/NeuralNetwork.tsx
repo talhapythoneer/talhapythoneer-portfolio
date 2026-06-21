@@ -8,6 +8,7 @@ interface Node {
   vx: number;
   vy: number;
   radius: number;
+  pop: number; // 0..1 bounce/scale impulse, decays each frame
 }
 
 export default function NeuralNetwork() {
@@ -35,7 +36,8 @@ export default function NeuralNetwork() {
           y: Math.random() * h,
           vx: Math.cos(angle) * speed,
           vy: Math.sin(angle) * speed,
-          radius: Math.random() * 1.6 + 1.1,
+          radius: Math.random() * 2 + 1.6,
+          pop: 0,
         };
       });
     };
@@ -56,19 +58,23 @@ export default function NeuralNetwork() {
     ro.observe(canvas);
     resize();
 
+    // Listen on window so hovering anywhere over the hero (including over the
+    // text/photo that sit above the canvas) still drives the interaction.
     const onMouseMove = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
-      mouseRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      mouseRef.current =
+        x >= 0 && y >= 0 && x <= rect.width && y <= rect.height
+          ? { x, y }
+          : { x: -9999, y: -9999 };
     };
-    const onMouseLeave = () => {
-      mouseRef.current = { x: -9999, y: -9999 };
-    };
-    canvas.addEventListener("mousemove", onMouseMove);
-    canvas.addEventListener("mouseleave", onMouseLeave);
+    window.addEventListener("mousemove", onMouseMove);
 
-    const LINK_DIST = 150;
+    const LINK_DIST = 155;
+    const REPEL_DIST = 150; // cursor influence radius
     const MIN_SPEED = 0.25; // baseline drift so the network is always moving
-    const MAX_SPEED = 1.2; // cap so cursor pushes don't fling nodes
+    const MAX_SPEED = 2.6; // cap (higher so bouncy pushes read clearly)
 
     const draw = () => {
       const { w, h } = sizeRef.current;
@@ -89,15 +95,19 @@ export default function NeuralNetwork() {
         node.x = Math.max(0, Math.min(w, node.x));
         node.y = Math.max(0, Math.min(h, node.y));
 
-        // gentle attraction toward cursor
+        // Bouncy cursor interaction: nodes are pushed away (repelled) and get
+        // a "pop" impulse the closer the cursor is, then spring back.
         const dx = mouse.x - node.x;
         const dy = mouse.y - node.y;
         const dist = Math.hypot(dx, dy);
-        if (dist < 150 && dist > 0) {
-          const force = ((150 - dist) / 150) * 0.22;
-          node.vx += (dx / dist) * force;
-          node.vy += (dy / dist) * force;
+        if (dist < REPEL_DIST && dist > 0) {
+          const t = (REPEL_DIST - dist) / REPEL_DIST; // 0..1
+          const force = t * t * 1.6; // springy falloff
+          node.vx -= (dx / dist) * force;
+          node.vy -= (dy / dist) * force;
+          node.pop = Math.max(node.pop, t);
         }
+        node.pop *= 0.9; // decay the bounce
 
         // Keep nodes perpetually drifting: clamp speed to [MIN, MAX] so they
         // never decay to a standstill and never run away after cursor pushes.
@@ -124,12 +134,12 @@ export default function NeuralNetwork() {
           const b = nodes[j];
           const dist = Math.hypot(a.x - b.x, a.y - b.y);
           if (dist < LINK_DIST) {
-            const alpha = (1 - dist / LINK_DIST) * 0.4;
+            const alpha = (1 - dist / LINK_DIST) * 0.6;
             ctx.beginPath();
             ctx.moveTo(a.x, a.y);
             ctx.lineTo(b.x, b.y);
             ctx.strokeStyle = `rgba(225, 29, 72, ${alpha})`;
-            ctx.lineWidth = 0.9;
+            ctx.lineWidth = 1.1;
             ctx.stroke();
           }
         }
@@ -138,18 +148,18 @@ export default function NeuralNetwork() {
       // nodes
       nodes.forEach((node) => {
         const dist = Math.hypot(node.x - mouse.x, node.y - mouse.y);
-        const near = dist < 110;
-        const glow = near ? (1 - dist / 110) * 0.7 + 0.3 : 0.35;
+        const near = dist < 130;
+        const glow = Math.min(1, (near ? (1 - dist / 130) * 0.6 : 0) + node.pop * 0.5 + 0.5);
+        const r = node.radius * (1 + node.pop * 1.3); // bounce scale
 
-        if (near) {
-          ctx.beginPath();
-          ctx.arc(node.x, node.y, node.radius + 4, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(244, 63, 94, ${glow * 0.18})`;
-          ctx.fill();
-        }
+        // soft glow halo (always a little, more when popped/near)
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, r + 4 + node.pop * 6, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(244, 63, 94, ${(node.pop * 0.25 + (near ? 0.12 : 0.06))})`;
+        ctx.fill();
 
         ctx.beginPath();
-        ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+        ctx.arc(node.x, node.y, r, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(244, 63, 94, ${glow})`;
         ctx.fill();
       });
@@ -162,15 +172,14 @@ export default function NeuralNetwork() {
     return () => {
       cancelAnimationFrame(animRef.current);
       ro.disconnect();
-      canvas.removeEventListener("mousemove", onMouseMove);
-      canvas.removeEventListener("mouseleave", onMouseLeave);
+      window.removeEventListener("mousemove", onMouseMove);
     };
   }, []);
 
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 w-full h-full opacity-80"
+      className="absolute inset-0 w-full h-full opacity-95"
       aria-hidden="true"
     />
   );
