@@ -83,6 +83,7 @@ export default function InteractiveWorldMap({
 } = {}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [geographies, setGeographies] = useState<any[]>([]);
   const reviews = useReviews();
@@ -206,6 +207,49 @@ export default function InteractiveWorldMap({
 
   useEffect(() => () => cancelClose(), []);
 
+  // Auto-scroll (ping-pong) through the review list when a panel opens, so all
+  // reviews are seen without manual scrolling. Manual wheel/touch pauses it briefly.
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || !panel) return;
+    el.scrollTop = 0;
+    let raf = 0;
+    let dir = 1;
+    let last = performance.now();
+    let pausedUntil = 0;
+    const bump = () => {
+      pausedUntil = performance.now() + 1400;
+    };
+    el.addEventListener("wheel", bump, { passive: true });
+    el.addEventListener("touchmove", bump, { passive: true });
+
+    const step = (now: number) => {
+      const dt = Math.min(50, now - last);
+      last = now;
+      const max = el.scrollHeight - el.clientHeight;
+      if (now > pausedUntil && max > 2) {
+        el.scrollTop += dir * dt * 0.04;
+        if (el.scrollTop >= max) {
+          el.scrollTop = max;
+          dir = -1;
+          pausedUntil = now + 900; // pause at the bottom
+        } else if (el.scrollTop <= 0) {
+          el.scrollTop = 0;
+          dir = 1;
+          pausedUntil = now + 900; // pause at the top
+        }
+      }
+      raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      el.removeEventListener("wheel", bump);
+      el.removeEventListener("touchmove", bump);
+    };
+  }, [panel?.code]);
+
   const loading = geographies.length === 0 || reviews.length === 0;
 
   return (
@@ -293,7 +337,7 @@ export default function InteractiveWorldMap({
               </div>
             </div>
 
-            <div className="p-3 space-y-3 overflow-y-auto map-panel-scroll">
+            <div ref={scrollRef} className="p-3 space-y-3 overflow-y-auto map-panel-scroll">
               {panel.reviews.map((r, idx) => (
                 <div key={`${r.username}-${idx}`} className="flex gap-2.5">
                   <PanelAvatar review={r} />
