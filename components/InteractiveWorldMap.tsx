@@ -119,7 +119,7 @@ export default function InteractiveWorldMap({
     [byCode]
   );
 
-  const projection = useMemo(() => geoMercator().scale(125).translate([400, 290]), []);
+  const projection = useMemo(() => geoMercator().scale(100).translate([400, 250]), []);
   const pathGenerator = useMemo(() => geoPath().projection(projection), [projection]);
 
   // Centroid (viewBox coords) per country code we can place on the map.
