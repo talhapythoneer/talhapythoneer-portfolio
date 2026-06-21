@@ -1,75 +1,36 @@
 "use client";
 
-import { motion, useInView } from "framer-motion";
-import { useRef, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import SectionHeading from "@/components/SectionHeading";
-import { featuredReviews, countryStats } from "@/data/reviews";
+import ReviewCard from "@/components/ReviewCard";
+import { featuredReviews, orderReviews } from "@/data/reviews";
 import InteractiveWorldMap from "@/components/InteractiveWorldMap";
+import { useReviews } from "@/components/useReviews";
 
-const countryFlagEmoji: Record<string, string> = {
-  US: "🇺🇸", GB: "🇬🇧", NL: "🇳🇱", CA: "🇨🇦", AU: "🇦🇺",
-  DE: "🇩🇪", AE: "🇦🇪", IT: "🇮🇹", FR: "🇫🇷", SI: "🇸🇮",
-  IN: "🇮🇳", SG: "🇸🇬",
-};
-
-function StarRating({ count = 5 }: { count?: number }) {
-  return (
-    <div className="flex items-center gap-0.5">
-      {[...Array(count)].map((_, i) => (
-        <svg key={i} width="12" height="12" viewBox="0 0 12 12" fill="#E11D48">
-          <path d="M6 0l1.35 4.15H12L8.5 6.7l1.35 4.15L6 8.3l-3.85 2.55L3.5 6.7 0 4.15h4.65z" />
-        </svg>
-      ))}
-    </div>
-  );
-}
-
-function ReviewCard({ review, index }: { review: (typeof featuredReviews)[0]; index: number }) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true });
-
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 30 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ delay: (index % 6) * 0.08, duration: 0.6 }}
-      className="card-glass rounded-2xl p-6 flex flex-col gap-4 hover:border-[#E11D48]/30 transition-all duration-300"
-    >
-      <div className="flex items-center justify-between">
-        <StarRating />
-        <span className="text-[#525252] text-[0.6rem] font-mono uppercase tracking-wider">
-          {countryFlagEmoji[review.reviewer_country_code] ?? "🌍"} {review.reviewer_country}
-        </span>
-      </div>
-
-      <p className="text-[#A3A3A3] text-sm leading-relaxed italic flex-1">
-        &ldquo;{review.comment}&rdquo;
-      </p>
-
-      <div className="flex items-center gap-3 pt-3 border-t border-[#171717]/50">
-        <div className="w-9 h-9 rounded-full overflow-hidden bg-[#050505] flex-shrink-0 border border-[#171717]">
-          <img
-            src={review.user_image_url}
-            alt={review.username}
-            className="w-full h-full object-cover"
-            onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
-          />
-        </div>
-        <div>
-          <p className="text-[#FAFAFA] text-xs font-semibold">@{review.username}</p>
-          {review.reviewer_industry && (
-            <p className="text-[#525252] text-[0.6rem] font-mono capitalize">
-              {review.reviewer_industry.replace(/_/g, " ")}
-            </p>
-          )}
-        </div>
-      </div>
-    </motion.div>
-  );
-}
+const PAGE_SIZE = 12;
 
 export default function TestimonialsClient() {
+  const [activeCountry, setActiveCountry] = useState<string | null>(null);
+  const [visible, setVisible] = useState(PAGE_SIZE);
+
+  const csvReviews = useReviews();
+  // Use the full CSV dataset once loaded; fall back to the curated set first paint.
+  const source = csvReviews.length > 0 ? csvReviews : featuredReviews;
+
+  const ordered = useMemo(
+    () => orderReviews(source, activeCountry),
+    [source, activeCountry]
+  );
+
+  const activeCountryName = useMemo(() => {
+    if (!activeCountry) return null;
+    const match = source.find((r) => r.reviewer_country_code === activeCountry);
+    return match?.reviewer_country ?? activeCountry;
+  }, [activeCountry, source]);
+
+  const hasMatch = !!activeCountry && ordered.some((r) => r.reviewer_country_code === activeCountry);
+
   return (
     <div className="min-h-screen bg-[#050505] dot-grid-bg pt-28 pb-24">
       <div className="max-w-7xl mx-auto px-6">
@@ -80,11 +41,25 @@ export default function TestimonialsClient() {
         />
 
         <div className="mb-16">
-          <InteractiveWorldMap />
+          <InteractiveWorldMap onCountryHover={setActiveCountry} />
         </div>
 
         <div className="mb-6 flex items-center justify-between">
-          <p className="section-label">Client Feedback</p>
+          <div className="flex items-center gap-3">
+            <p className="section-label">Client Feedback</p>
+            <AnimatePresence>
+              {activeCountryName && hasMatch && (
+                <motion.span
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -8 }}
+                  className="text-xs font-mono text-[#E11D48] bg-[#E11D48]/10 border border-[#E11D48]/30 px-2.5 py-1 rounded-full"
+                >
+                  ↑ {activeCountryName} first
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </div>
           <div className="flex items-center gap-2">
             <span className="font-heading font-bold text-2xl text-[#E11D48]">4.9</span>
             <div className="flex flex-col">
@@ -95,16 +70,29 @@ export default function TestimonialsClient() {
                   </svg>
                 ))}
               </div>
-              <span className="text-[#525252] text-[0.6rem] font-mono">625 reviews</span>
+              <span className="text-[#525252] text-[0.6rem] font-mono">
+                {source.length} reviews
+              </span>
             </div>
           </div>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-12">
-          {featuredReviews.map((review, i) => (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-10">
+          {ordered.slice(0, visible).map((review, i) => (
             <ReviewCard key={`${review.username}-${i}`} review={review} index={i} />
           ))}
         </div>
+
+        {visible < ordered.length && (
+          <div className="text-center mb-12">
+            <button
+              onClick={() => setVisible((v) => v + PAGE_SIZE)}
+              className="px-8 py-3 border border-[#171717] hover:border-[#E11D48] text-[#A3A3A3] hover:text-[#E11D48] font-semibold rounded-full transition-all duration-300 text-sm"
+            >
+              Load more reviews ({ordered.length - visible} left)
+            </button>
+          </div>
+        )}
 
         <div className="text-center">
           <div className="flex flex-wrap gap-4 justify-center">

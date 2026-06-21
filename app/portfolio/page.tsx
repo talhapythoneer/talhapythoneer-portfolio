@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import type { Metadata } from "next";
 import SectionHeading from "@/components/SectionHeading";
 import ProjectCard from "@/components/portfolio/ProjectCard";
 import ProjectModal from "@/components/portfolio/ProjectModal";
+import ReviewCard from "@/components/ReviewCard";
 import { projects, type Project, type ProjectType } from "@/data/projects";
+import { featuredReviews, orderReviews } from "@/data/reviews";
 
 const tabs: { label: string; value: ProjectType | "All" }[] = [
   { label: "All", value: "All" },
@@ -83,6 +85,29 @@ export default function PortfolioPage() {
             No projects found in this category.
           </div>
         )}
+
+        {/* Testimonials */}
+        <div className="mt-24">
+          <SectionHeading
+            label="Client Feedback"
+            title="What Clients Say About These Projects"
+            description="Real, verified reviews from Fiverr and Upwork clients behind the work above."
+          />
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {orderReviews(featuredReviews).slice(0, 6).map((review, i) => (
+              <ReviewCard key={review.username} review={review} index={i} />
+            ))}
+          </div>
+          <div className="text-center mt-10">
+            <Link
+              href="/testimonials"
+              className="inline-flex items-center gap-2 px-8 py-3.5 border border-[#171717] hover:border-[#E11D48] text-[#A3A3A3] hover:text-[#E11D48] font-semibold rounded-full transition-all duration-300 text-sm group"
+            >
+              See all reviews & the world map
+              <span className="group-hover:translate-x-1 transition-transform duration-300">→</span>
+            </Link>
+          </div>
+        </div>
 
         <div className="mt-16 text-center">
           <p className="text-[#525252] text-sm mb-6 font-mono">

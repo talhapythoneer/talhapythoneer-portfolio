@@ -5,6 +5,8 @@ import { useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import SectionHeading from "./SectionHeading";
+import ProjectModal from "./portfolio/ProjectModal";
+import { projects, type Project } from "@/data/projects";
 
 const featured = [
   {
@@ -36,7 +38,7 @@ const featured = [
   },
 ];
 
-function Card({ item, index }: { item: (typeof featured)[0]; index: number }) {
+function Card({ item, index, onOpen }: { item: (typeof featured)[0]; index: number; onOpen: () => void }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [hovered, setHovered] = useState(false);
 
@@ -68,8 +70,17 @@ function Card({ item, index }: { item: (typeof featured)[0]; index: number }) {
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={handleMouseLeave}
+      onClick={onOpen}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onOpen();
+        }
+      }}
       style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-      className="group relative bg-[#0A0A0A] rounded-2xl overflow-hidden border border-[#171717]/60 cursor-pointer"
+      className="group relative bg-[#0A0A0A] rounded-2xl overflow-hidden border border-[#171717]/60 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E11D48]"
     >
       <motion.div
         animate={{ opacity: hovered ? 1 : 0 }}
@@ -113,6 +124,11 @@ function Card({ item, index }: { item: (typeof featured)[0]; index: number }) {
             </span>
           ))}
         </div>
+
+        <div className="mt-4 inline-flex items-center gap-1.5 text-xs font-mono text-[#E11D48] opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          View details
+          <span className="group-hover:translate-x-1 transition-transform duration-300">→</span>
+        </div>
       </div>
 
       <motion.div
@@ -125,13 +141,20 @@ function Card({ item, index }: { item: (typeof featured)[0]; index: number }) {
 }
 
 export default function FeaturedWork() {
+  const [selected, setSelected] = useState<Project | null>(null);
+
+  const openProject = (id: number) => {
+    const match = projects.find((p) => p.id === id);
+    if (match) setSelected(match);
+  };
+
   return (
     <section className="py-24 bg-[#0A0A0A]">
       <div className="max-w-7xl mx-auto px-6">
         <SectionHeading
           label="Selected Work"
           title="Featured Projects"
-          description="A handful of projects from 1500+ deliveries. Each one solved a real business problem."
+          description="A handful of projects from 1500+ deliveries. Each one solved a real business problem. Click any project for full details."
         />
 
         <div
@@ -139,7 +162,7 @@ export default function FeaturedWork() {
           style={{ perspective: "1200px" }}
         >
           {featured.map((item, i) => (
-            <Card key={item.id} item={item} index={i} />
+            <Card key={item.id} item={item} index={i} onOpen={() => openProject(item.id)} />
           ))}
         </div>
 
@@ -153,6 +176,8 @@ export default function FeaturedWork() {
           </Link>
         </div>
       </div>
+
+      <ProjectModal project={selected} onClose={() => setSelected(null)} />
     </section>
   );
 }

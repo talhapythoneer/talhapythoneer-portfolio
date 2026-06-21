@@ -58,17 +58,29 @@ export const featuredReviews: Review[] = [
   },
 ];
 
-export const countryStats = [
-  { code: "US", name: "United States", count: 180 },
-  { code: "GB", name: "United Kingdom", count: 65 },
-  { code: "NL", name: "Netherlands", count: 42 },
-  { code: "CA", name: "Canada", count: 38 },
-  { code: "AU", name: "Australia", count: 31 },
-  { code: "DE", name: "Germany", count: 28 },
-  { code: "AE", name: "United Arab Emirates", count: 22 },
-  { code: "IT", name: "Italy", count: 18 },
-  { code: "FR", name: "France", count: 16 },
-  { code: "SI", name: "Slovenia", count: 12 },
-  { code: "IN", name: "India", count: 25 },
-  { code: "SG", name: "Singapore", count: 14 },
-];
+// Display order: (1) reviews with a profile image AND a long/detailed comment,
+// (2) reviews with a profile image but a shorter comment, (3) short reviews
+// with no image. When `activeCode` is set (e.g. a country hovered on the map),
+// that country's reviews float to the top while keeping the same tier order.
+const BIG_COMMENT = 150;
+
+function reviewTier(r: Review): number {
+  const hasImage = !!r.user_image_url;
+  const isBig = r.comment.length >= BIG_COMMENT;
+  if (hasImage && isBig) return 0;
+  if (hasImage) return 1;
+  return 2;
+}
+
+export function orderReviews(list: Review[], activeCode?: string | null): Review[] {
+  return [...list].sort((a, b) => {
+    if (activeCode) {
+      const aMatch = a.reviewer_country_code === activeCode ? 0 : 1;
+      const bMatch = b.reviewer_country_code === activeCode ? 0 : 1;
+      if (aMatch !== bMatch) return aMatch - bMatch;
+    }
+    const tierDiff = reviewTier(a) - reviewTier(b);
+    if (tierDiff !== 0) return tierDiff;
+    return b.comment.length - a.comment.length;
+  });
+}

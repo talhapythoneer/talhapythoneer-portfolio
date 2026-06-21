@@ -3,6 +3,8 @@ import { Montserrat, Lato } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { featuredReviews } from "@/data/reviews";
+import { getAllReviews } from "@/data/reviewsServer";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -88,12 +90,34 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://www.talhapythoneer.com",
   },
+  verification: {
+    google: "uQg4mm3he0dJnOB3R8aiRvxNvTNJFVMZ6baDKa5dSwo",
+  },
+  category: "technology",
   other: {
     "geo.region": "PK",
     "geo.placename": "Pakistan",
     "theme-color": "#E11D48",
   },
 };
+
+// Real client reviews surfaced as structured data so search engines can show
+// review snippets. Loaded from the full CSV at build time; falls back to the
+// curated set. Picks the most substantial comments and caps the count to keep
+// page weight reasonable.
+const allReviews = getAllReviews();
+const reviewSource = allReviews.length > 0 ? allReviews : featuredReviews;
+const reviewSchema = reviewSource
+  .filter((r) => r.comment && r.comment.trim().length > 40)
+  .sort((a, b) => b.comment.length - a.comment.length)
+  .slice(0, 30)
+  .map((r) => ({
+    "@type": "Review",
+    reviewRating: { "@type": "Rating", ratingValue: "5", bestRating: "5", worstRating: "1" },
+    author: { "@type": "Person", name: r.username },
+    reviewBody: r.comment,
+    ...(r.reviewer_country ? { locationCreated: { "@type": "Place", name: r.reviewer_country } } : {}),
+  }));
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -121,6 +145,35 @@ const jsonLd = {
         "https://github.com/talhapythoneer",
         "https://linkedin.com/in/talhapythoneer",
       ],
+      address: { "@type": "PostalAddress", addressCountry: "PK" },
+      nationality: { "@type": "Country", name: "Pakistan" },
+      knowsAbout: [
+        "Web Scraping",
+        "Data Scraping",
+        "Data Extraction",
+        "Python",
+        "Selenium",
+        "Playwright",
+        "Scrapy",
+        "BeautifulSoup",
+        "Browser Automation",
+        "Anti-bot Bypass",
+        "LangChain",
+        "CrewAI",
+        "AutoGen",
+        "Agentic AI",
+        "LLM Applications",
+        "API Integration",
+        "Data Pipelines",
+      ],
+      knowsLanguage: ["en"],
+      hasOccupation: {
+        "@type": "Occupation",
+        name: "Python Developer & Web Scraping Expert",
+        occupationLocation: { "@type": "Country", name: "Pakistan" },
+        skills:
+          "Web scraping, data scraping, browser automation, anti-bot bypass, agentic AI, LangChain, CrewAI, Selenium, Playwright, Scrapy",
+      },
       aggregateRating: {
         "@type": "AggregateRating",
         ratingValue: "4.9",
@@ -129,14 +182,18 @@ const jsonLd = {
         ratingCount: "625",
         reviewCount: "625",
       },
+      review: reviewSchema,
     },
     {
       "@type": "ProfessionalService",
+      "@id": "https://www.talhapythoneer.com/#service",
       name: "Talha Pythoneer — Python Web Scraping & Data Scraping Services",
       description:
         "Professional web scraping, data scraping, browser automation, and AI automation services for businesses worldwide.",
       url: "https://www.talhapythoneer.com",
+      image: "https://www.talhapythoneer.com/assets/img/porifle_v1.png",
       priceRange: "$$",
+      provider: { "@type": "Person", name: "Talha Pythoneer" },
       areaServed: { "@type": "Place", name: "Worldwide" },
       serviceType: [
         "Web Scraping",
@@ -148,12 +205,23 @@ const jsonLd = {
         "AI Agent Development",
         "Agentic AI Solutions",
       ],
+      hasOfferCatalog: {
+        "@type": "OfferCatalog",
+        name: "Python & AI Automation Services",
+        itemListElement: [
+          { "@type": "Offer", itemOffered: { "@type": "Service", name: "Web Scraping & Data Extraction" } },
+          { "@type": "Offer", itemOffered: { "@type": "Service", name: "Browser Automation & Anti-bot Bypass" } },
+          { "@type": "Offer", itemOffered: { "@type": "Service", name: "Agentic AI & LLM Pipelines" } },
+          { "@type": "Offer", itemOffered: { "@type": "Service", name: "Data Pipelines & API Integration" } },
+        ],
+      },
       aggregateRating: {
         "@type": "AggregateRating",
         ratingValue: "4.9",
         reviewCount: "625",
         bestRating: "5",
       },
+      review: reviewSchema,
     },
     {
       "@type": "WebSite",

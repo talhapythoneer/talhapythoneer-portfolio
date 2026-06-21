@@ -39,24 +39,36 @@ export default function TrustedBy() {
           {doubled.map((company, i) => (
             <div
               key={`${company.name}-${i}`}
-              className="flex-shrink-0 group relative h-20 w-44 bg-white border border-[#E5E5E5] rounded-xl overflow-hidden flex items-center justify-center px-6 mx-4 transition-all duration-300 hover:border-[#E11D48]/40 hover:shadow-[0_0_20px_rgba(225,29,72,0.15)]"
-              title={`${company.name} — ${company.industry}`}
+              className="flex-shrink-0 group relative h-24 w-52 bg-white border border-[#E5E5E5] rounded-xl overflow-hidden flex items-center justify-center px-6 mx-4 transition-all duration-300 cursor-pointer hover:border-[#E11D48] hover:shadow-[0_0_28px_rgba(225,29,72,0.25)] hover:-translate-y-1"
             >
-              <Image
-                src={company.logo}
-                alt={company.name}
-                width={140}
-                height={50}
-                className="object-contain max-h-10 w-auto opacity-90 group-hover:opacity-100 transition-all duration-300"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = "none";
-                  const parent = target.parentElement;
-                  if (parent) {
-                    parent.innerHTML = `<span class="text-xs font-mono text-[#404040] font-semibold text-center px-1">${company.name}</span>`;
-                  }
-                }}
-              />
+              {/* Logo */}
+              <div className="flex items-center justify-center transition-all duration-300 group-hover:opacity-0 group-hover:scale-90">
+                <Image
+                  src={company.logo}
+                  alt={company.name}
+                  width={150}
+                  height={56}
+                  className="object-contain max-h-12 w-auto opacity-90"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = "none";
+                    const parent = target.parentElement;
+                    if (parent) {
+                      parent.innerHTML = `<span class="text-sm font-mono text-[#404040] font-semibold text-center px-1">${company.name}</span>`;
+                    }
+                  }}
+                />
+              </div>
+
+              {/* Hover reveal: company name + industry */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 px-4 text-center bg-gradient-to-br from-[#1A1A1A] to-[#0A0A0A] opacity-0 translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
+                <span className="font-heading font-bold text-base text-[#F43F5E] leading-tight">
+                  {company.name}
+                </span>
+                <span className="text-[0.7rem] font-mono uppercase tracking-wider text-[#A3A3A3]">
+                  {company.industry}
+                </span>
+              </div>
             </div>
           ))}
         </motion.div>
