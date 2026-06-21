@@ -230,7 +230,7 @@ export default function AboutClient() {
               >
                 <div className="w-2 h-2 rounded-full bg-[#E11D48] mb-3 group-hover:scale-150 transition-transform duration-300" />
                 <h4 className="font-heading font-bold text-sm text-[#FAFAFA] mb-1">{industry.name}</h4>
-                <p className="text-[#525252] text-xs leading-relaxed">{industry.note}</p>
+                <p className="text-[#FAFAFA] text-xs leading-relaxed">{industry.note}</p>
               </motion.div>
             ))}
           </div>

@@ -1,22 +1,24 @@
 "use client";
 
 import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useMemo } from "react";
 import Link from "next/link";
 import SectionHeading from "./SectionHeading";
-import { featuredReviews } from "@/data/reviews";
-
-const countryFlagEmoji: Record<string, string> = {
-  US: "🇺🇸", GB: "🇬🇧", NL: "🇳🇱", CA: "🇨🇦", AU: "🇦🇺",
-  DE: "🇩🇪", AE: "🇦🇪", IT: "🇮🇹", FR: "🇫🇷", SI: "🇸🇮",
-  IN: "🇮🇳", SG: "🇸🇬",
-};
+import Flag from "./Flag";
+import { featuredReviews, orderReviews } from "@/data/reviews";
+import { useReviews } from "./useReviews";
 
 export default function HomeTestimonialsPreview() {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-100px" });
 
-  const preview = featuredReviews.slice(0, 3);
+  // Show real reviews from the CSV (ordered: profile pic + long text first),
+  // falling back to the curated set until the CSV loads.
+  const csvReviews = useReviews();
+  const preview = useMemo(() => {
+    const source = csvReviews.length > 0 ? csvReviews : featuredReviews;
+    return orderReviews(source).slice(0, 3);
+  }, [csvReviews]);
 
   return (
     <section ref={ref} className="py-24 bg-[#0A0A0A]">
@@ -30,7 +32,7 @@ export default function HomeTestimonialsPreview() {
         <div className="grid md:grid-cols-3 gap-6 mb-12">
           {preview.map((review, i) => (
             <motion.div
-              key={review.username}
+              key={`${review.username}-${i}`}
               initial={{ opacity: 0, y: 30 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: i * 0.12, duration: 0.6 }}
@@ -61,8 +63,8 @@ export default function HomeTestimonialsPreview() {
                 </div>
                 <div>
                   <p className="text-[#FAFAFA] text-xs font-semibold">@{review.username}</p>
-                  <p className="text-[#525252] text-[0.65rem] font-mono">
-                    {countryFlagEmoji[review.reviewer_country_code] ?? "🌍"} {review.reviewer_country}
+                  <p className="flex items-center gap-1.5 text-[#525252] text-[0.65rem] font-mono">
+                    <Flag code={review.reviewer_country_code} className="w-4 h-3" /> {review.reviewer_country}
                   </p>
                 </div>
               </div>
