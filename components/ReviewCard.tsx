@@ -3,12 +3,7 @@
 import { motion, useInView } from "framer-motion";
 import { useRef, useState } from "react";
 import type { Review } from "@/data/reviews";
-
-const countryFlagEmoji: Record<string, string> = {
-  US: "🇺🇸", GB: "🇬🇧", NL: "🇳🇱", CA: "🇨🇦", AU: "🇦🇺",
-  DE: "🇩🇪", AE: "🇦🇪", IT: "🇮🇹", FR: "🇫🇷", SI: "🇸🇮",
-  IN: "🇮🇳", SG: "🇸🇬",
-};
+import Flag from "./Flag";
 
 function StarRating({ count = 5 }: { count?: number }) {
   return (
@@ -66,8 +61,8 @@ export default function ReviewCard({
     >
       <div className="flex items-center justify-between">
         <StarRating />
-        <span className="text-[#A3A3A3] text-xs font-mono uppercase tracking-wider">
-          {countryFlagEmoji[review.reviewer_country_code] ?? "🌍"} {review.reviewer_country}
+        <span className="flex items-center gap-1.5 text-[#A3A3A3] text-xs font-mono uppercase tracking-wider">
+          <Flag code={review.reviewer_country_code} className="w-4 h-3" /> {review.reviewer_country}
         </span>
       </div>
 

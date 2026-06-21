@@ -6,6 +6,7 @@ import * as topojson from "topojson-client";
 import { motion, AnimatePresence } from "framer-motion";
 import { orderReviews, type Review } from "@/data/reviews";
 import { useReviews } from "./useReviews";
+import Flag from "./Flag";
 
 // Country ISO code -> the name used by the world-atlas TopoJSON, so we can
 // match our review data to the rendered map polygons.
@@ -27,14 +28,6 @@ const CODE_TO_TOPONAME: Record<string, string> = {
 const TOPONAME_TO_CODE: Record<string, string> = Object.fromEntries(
   Object.entries(CODE_TO_TOPONAME).map(([code, name]) => [name, code])
 );
-
-// Build a flag emoji from any 2-letter ISO country code.
-const flagOf = (code: string) =>
-  /^[A-Za-z]{2}$/.test(code)
-    ? code
-        .toUpperCase()
-        .replace(/./g, (c) => String.fromCodePoint(0x1f1e6 + c.charCodeAt(0) - 65))
-    : "🌍";
 
 interface CountryInfo {
   code: string;
@@ -125,7 +118,6 @@ export default function InteractiveWorldMap({
     () => [...byCode.values()].sort((a, b) => b.count - a.count),
     [byCode]
   );
-  const totalReviews = reviews.length;
 
   const projection = useMemo(() => geoMercator().scale(125).translate([400, 290]), []);
   const pathGenerator = useMemo(() => geoPath().projection(projection), [projection]);
@@ -199,17 +191,6 @@ export default function InteractiveWorldMap({
 
   return (
     <div ref={containerRef} className="relative w-full overflow-hidden rounded-2xl card-glass p-4 md:p-6 shadow-2xl">
-      <div className="absolute top-6 left-6 z-10 pointer-events-none">
-        <h3 className="font-heading font-bold text-xl md:text-2xl text-[#FAFAFA] mb-1">
-          Global Client Distribution
-        </h3>
-        <p className="text-[#A3A3A3] text-sm font-mono">
-          {totalReviews > 0
-            ? `${totalReviews} reviews across ${byCode.size} countries — hover a country`
-            : "Hover a country to read its reviews"}
-        </p>
-      </div>
-
       <div className="relative w-full aspect-[16/9] md:aspect-[2/1] min-h-[320px] flex items-center justify-center">
         {loading ? (
           <div className="flex items-center gap-3 text-[#A3A3A3] font-mono text-sm animate-pulse">
@@ -262,7 +243,7 @@ export default function InteractiveWorldMap({
                   : "border-[#1A1A1A] text-[#A3A3A3] hover:border-[#E11D48]/40"
               }`}
             >
-              <span className="text-base leading-none">{flagOf(c.code)}</span>
+              <Flag code={c.code} className="w-5 h-3.5 shadow-sm" />
               <span>{c.name}</span>
               <span className="text-[#E11D48] font-bold">{c.count}</span>
             </button>
@@ -284,7 +265,7 @@ export default function InteractiveWorldMap({
             style={{ left: panel.x, top: panel.y, width: PANEL_W, maxHeight: PANEL_H }}
           >
             <div className="flex items-center gap-3 px-4 py-3 border-b border-[#171717] bg-gradient-to-r from-[#E11D48]/10 to-transparent flex-shrink-0">
-              <span className="text-2xl drop-shadow-lg">{flagOf(panel.code)}</span>
+              <Flag code={panel.code} className="w-8 h-6 shadow-md" />
               <div className="flex flex-col">
                 <span className="text-[#FAFAFA] text-sm font-semibold leading-tight">{panel.name}</span>
                 <span className="text-[#E11D48] text-[0.7rem] font-mono font-bold tracking-widest uppercase">

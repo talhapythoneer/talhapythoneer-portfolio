@@ -122,7 +122,7 @@ function ContactCard({ contact, index }: { contact: (typeof contacts)[0]; index:
         <p className="font-mono font-semibold text-[#FAFAFA] text-sm group-hover:text-[#E11D48] transition-colors duration-300 break-all">
           {contact.value}
         </p>
-        <p className="text-[#525252] text-[0.7rem] mt-1 leading-relaxed">{contact.sublabel}</p>
+        <p className="text-[#FAFAFA] text-[0.7rem] mt-1 leading-relaxed">{contact.sublabel}</p>
       </div>
     </motion.a>
   );

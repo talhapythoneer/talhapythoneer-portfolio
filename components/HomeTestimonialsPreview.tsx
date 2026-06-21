@@ -4,13 +4,8 @@ import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import Link from "next/link";
 import SectionHeading from "./SectionHeading";
+import Flag from "./Flag";
 import { featuredReviews } from "@/data/reviews";
-
-const countryFlagEmoji: Record<string, string> = {
-  US: "🇺🇸", GB: "🇬🇧", NL: "🇳🇱", CA: "🇨🇦", AU: "🇦🇺",
-  DE: "🇩🇪", AE: "🇦🇪", IT: "🇮🇹", FR: "🇫🇷", SI: "🇸🇮",
-  IN: "🇮🇳", SG: "🇸🇬",
-};
 
 export default function HomeTestimonialsPreview() {
   const ref = useRef(null);
@@ -61,8 +56,8 @@ export default function HomeTestimonialsPreview() {
                 </div>
                 <div>
                   <p className="text-[#FAFAFA] text-xs font-semibold">@{review.username}</p>
-                  <p className="text-[#525252] text-[0.65rem] font-mono">
-                    {countryFlagEmoji[review.reviewer_country_code] ?? "🌍"} {review.reviewer_country}
+                  <p className="flex items-center gap-1.5 text-[#525252] text-[0.65rem] font-mono">
+                    <Flag code={review.reviewer_country_code} className="w-4 h-3" /> {review.reviewer_country}
                   </p>
                 </div>
               </div>
