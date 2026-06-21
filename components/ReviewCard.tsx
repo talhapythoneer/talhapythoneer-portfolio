@@ -59,28 +59,22 @@ export default function ReviewCard({
       transition={{ delay: (index % 6) * 0.08, duration: 0.6 }}
       className="card-glass rounded-2xl p-6 flex flex-col gap-4 hover:border-[#E11D48]/30 transition-all duration-300"
     >
-      <div className="flex items-center justify-between">
+      {/* Header: client photo, name, country + rating */}
+      <div className="flex items-center gap-3 pb-3 border-b border-[#171717]/50">
+        <Avatar review={review} />
+        <div className="min-w-0 flex-1">
+          <p className="text-[#FAFAFA] text-sm font-semibold truncate">@{review.username}</p>
+          <p className="flex items-center gap-1.5 text-[#A3A3A3] text-xs font-mono">
+            <Flag code={review.reviewer_country_code} className="w-4 h-3" />
+            <span className="truncate">{review.reviewer_country}</span>
+          </p>
+        </div>
         <StarRating />
-        <span className="flex items-center gap-1.5 text-[#A3A3A3] text-xs font-mono uppercase tracking-wider">
-          <Flag code={review.reviewer_country_code} className="w-4 h-3" /> {review.reviewer_country}
-        </span>
       </div>
 
       <p className="text-[#A3A3A3] text-base leading-relaxed italic flex-1">
         &ldquo;{review.comment}&rdquo;
       </p>
-
-      <div className="flex items-center gap-3 pt-3 border-t border-[#171717]/50">
-        <Avatar review={review} />
-        <div>
-          <p className="text-[#FAFAFA] text-sm font-semibold">@{review.username}</p>
-          {review.reviewer_industry && (
-            <p className="text-[#525252] text-xs font-mono capitalize">
-              {review.reviewer_industry.replace(/_/g, " ")}
-            </p>
-          )}
-        </div>
-      </div>
     </motion.div>
   );
 }

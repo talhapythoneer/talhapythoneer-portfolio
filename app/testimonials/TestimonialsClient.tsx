@@ -9,7 +9,7 @@ import InteractiveWorldMap from "@/components/InteractiveWorldMap";
 import TrustedBy from "@/components/TrustedBy";
 import { useReviews } from "@/components/useReviews";
 
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 6;
 
 export default function TestimonialsClient() {
   const [activeCountry, setActiveCountry] = useState<string | null>(null);
