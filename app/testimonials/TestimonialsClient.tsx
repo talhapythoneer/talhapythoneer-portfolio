@@ -6,6 +6,7 @@ import SectionHeading from "@/components/SectionHeading";
 import ReviewCard from "@/components/ReviewCard";
 import { featuredReviews, orderReviews } from "@/data/reviews";
 import InteractiveWorldMap from "@/components/InteractiveWorldMap";
+import TrustedBy from "@/components/TrustedBy";
 import { useReviews } from "@/components/useReviews";
 
 const PAGE_SIZE = 12;
@@ -114,6 +115,10 @@ export default function TestimonialsClient() {
             </a>
           </div>
         </div>
+      </div>
+
+      <div className="mt-24">
+        <TrustedBy />
       </div>
     </div>
   );

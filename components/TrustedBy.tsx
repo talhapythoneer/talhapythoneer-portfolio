@@ -2,15 +2,16 @@
 
 import { motion, useInView } from "framer-motion";
 import Image from "next/image";
-import { useRef } from "react";
-import SectionHeading from "./SectionHeading";
+import { useRef, useState } from "react";
 import { companies } from "@/data/companies";
 
 const doubled = [...companies, ...companies];
 
 export default function TrustedBy() {
   const ref = useRef(null);
+  const trackRef = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true });
+  const [dragging, setDragging] = useState(false);
 
   return (
     <section ref={ref} className="py-24 bg-black overflow-hidden">
@@ -23,19 +24,30 @@ export default function TrustedBy() {
           <p className="text-[#A3A3A3] text-lg max-w-2xl mx-auto leading-relaxed">
             Universities, startups, SaaS platforms, law firms, and enterprise clients from 40+ countries.
           </p>
+          <p className="text-[#525252] text-xs font-mono mt-4">← drag to slide →</p>
         </div>
       </div>
 
-      <div className="relative overflow-hidden">
+      <div ref={trackRef} className="relative overflow-hidden">
         <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-black to-transparent z-10 pointer-events-none" />
         <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-black to-transparent z-10 pointer-events-none" />
 
         <motion.div
+          drag="x"
+          dragConstraints={trackRef}
+          dragElastic={0.12}
+          dragDirectionLock
+          onDragStart={() => setDragging(true)}
+          onDragEnd={() => setDragging(false)}
           initial={{ opacity: 0 }}
           animate={inView ? { opacity: 1 } : {}}
           transition={{ delay: 0.3 }}
-          className="marquee-track gap-8 py-4"
+          className="w-max cursor-grab active:cursor-grabbing"
         >
+          <div
+            className="marquee-track gap-8 py-4"
+            style={{ animationPlayState: dragging ? "paused" : undefined }}
+          >
           {doubled.map((company, i) => (
             <div
               key={`${company.name}-${i}`}
@@ -71,6 +83,7 @@ export default function TrustedBy() {
               </div>
             </div>
           ))}
+          </div>
         </motion.div>
       </div>
     </section>

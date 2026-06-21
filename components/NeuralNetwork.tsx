@@ -27,13 +27,17 @@ export default function NeuralNetwork() {
 
     const seedNodes = (w: number, h: number) => {
       const count = Math.max(28, Math.min(80, Math.floor((w * h) / 15000)));
-      nodesRef.current = Array.from({ length: count }, () => ({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        vx: (Math.random() - 0.5) * 0.45,
-        vy: (Math.random() - 0.5) * 0.45,
-        radius: Math.random() * 1.6 + 1.1,
-      }));
+      nodesRef.current = Array.from({ length: count }, () => {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 0.3 + Math.random() * 0.5; // varied drift speeds
+        return {
+          x: Math.random() * w,
+          y: Math.random() * h,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          radius: Math.random() * 1.6 + 1.1,
+        };
+      });
     };
 
     const resize = () => {
@@ -63,6 +67,8 @@ export default function NeuralNetwork() {
     canvas.addEventListener("mouseleave", onMouseLeave);
 
     const LINK_DIST = 150;
+    const MIN_SPEED = 0.25; // baseline drift so the network is always moving
+    const MAX_SPEED = 1.2; // cap so cursor pushes don't fling nodes
 
     const draw = () => {
       const { w, h } = sizeRef.current;
@@ -87,14 +93,28 @@ export default function NeuralNetwork() {
         const dx = mouse.x - node.x;
         const dy = mouse.y - node.y;
         const dist = Math.hypot(dx, dy);
-        if (dist < 140 && dist > 0) {
-          const force = ((140 - dist) / 140) * 0.25;
+        if (dist < 150 && dist > 0) {
+          const force = ((150 - dist) / 150) * 0.22;
           node.vx += (dx / dist) * force;
           node.vy += (dy / dist) * force;
         }
-        // mild damping keeps motion calm
-        node.vx = Math.max(-1, Math.min(1, node.vx * 0.99));
-        node.vy = Math.max(-1, Math.min(1, node.vy * 0.99));
+
+        // Keep nodes perpetually drifting: clamp speed to [MIN, MAX] so they
+        // never decay to a standstill and never run away after cursor pushes.
+        let sp = Math.hypot(node.vx, node.vy);
+        if (sp < 1e-4) {
+          const a = Math.random() * Math.PI * 2;
+          node.vx = Math.cos(a);
+          node.vy = Math.sin(a);
+          sp = 1;
+        }
+        if (sp < MIN_SPEED) {
+          node.vx = (node.vx / sp) * MIN_SPEED;
+          node.vy = (node.vy / sp) * MIN_SPEED;
+        } else if (sp > MAX_SPEED) {
+          node.vx = (node.vx / sp) * MAX_SPEED;
+          node.vy = (node.vy / sp) * MAX_SPEED;
+        }
       });
 
       // links
