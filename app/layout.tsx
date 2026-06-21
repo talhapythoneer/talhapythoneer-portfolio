@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { featuredReviews } from "@/data/reviews";
+import { getAllReviews } from "@/data/reviewsServer";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -100,14 +101,23 @@ export const metadata: Metadata = {
   },
 };
 
-// A few representative client reviews surfaced as structured data for rich results.
-const reviewSchema = featuredReviews.slice(0, 5).map((r) => ({
-  "@type": "Review",
-  reviewRating: { "@type": "Rating", ratingValue: "5", bestRating: "5" },
-  author: { "@type": "Person", name: r.username },
-  reviewBody: r.comment,
-  ...(r.reviewer_country ? { locationCreated: { "@type": "Place", name: r.reviewer_country } } : {}),
-}));
+// Real client reviews surfaced as structured data so search engines can show
+// review snippets. Loaded from the full CSV at build time; falls back to the
+// curated set. Picks the most substantial comments and caps the count to keep
+// page weight reasonable.
+const allReviews = getAllReviews();
+const reviewSource = allReviews.length > 0 ? allReviews : featuredReviews;
+const reviewSchema = reviewSource
+  .filter((r) => r.comment && r.comment.trim().length > 40)
+  .sort((a, b) => b.comment.length - a.comment.length)
+  .slice(0, 30)
+  .map((r) => ({
+    "@type": "Review",
+    reviewRating: { "@type": "Rating", ratingValue: "5", bestRating: "5", worstRating: "1" },
+    author: { "@type": "Person", name: r.username },
+    reviewBody: r.comment,
+    ...(r.reviewer_country ? { locationCreated: { "@type": "Place", name: r.reviewer_country } } : {}),
+  }));
 
 const jsonLd = {
   "@context": "https://schema.org",

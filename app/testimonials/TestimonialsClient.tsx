@@ -6,19 +6,30 @@ import SectionHeading from "@/components/SectionHeading";
 import ReviewCard from "@/components/ReviewCard";
 import { featuredReviews, orderReviews } from "@/data/reviews";
 import InteractiveWorldMap from "@/components/InteractiveWorldMap";
+import { useReviews } from "@/components/useReviews";
 
-const countryName: Record<string, string> = {
-  US: "United States", GB: "United Kingdom", NL: "Netherlands", CA: "Canada",
-  AU: "Australia", DE: "Germany", AE: "United Arab Emirates", IT: "Italy",
-  FR: "France", SI: "Slovenia", IN: "India", SG: "Singapore",
-};
+const PAGE_SIZE = 12;
 
 export default function TestimonialsClient() {
   const [activeCountry, setActiveCountry] = useState<string | null>(null);
-  const ordered = useMemo(() => orderReviews(featuredReviews, activeCountry), [activeCountry]);
-  const hasMatch = activeCountry
-    ? featuredReviews.some((r) => r.reviewer_country_code === activeCountry)
-    : false;
+  const [visible, setVisible] = useState(PAGE_SIZE);
+
+  const csvReviews = useReviews();
+  // Use the full CSV dataset once loaded; fall back to the curated set first paint.
+  const source = csvReviews.length > 0 ? csvReviews : featuredReviews;
+
+  const ordered = useMemo(
+    () => orderReviews(source, activeCountry),
+    [source, activeCountry]
+  );
+
+  const activeCountryName = useMemo(() => {
+    if (!activeCountry) return null;
+    const match = source.find((r) => r.reviewer_country_code === activeCountry);
+    return match?.reviewer_country ?? activeCountry;
+  }, [activeCountry, source]);
+
+  const hasMatch = !!activeCountry && ordered.some((r) => r.reviewer_country_code === activeCountry);
 
   return (
     <div className="min-h-screen bg-[#050505] dot-grid-bg pt-28 pb-24">
@@ -37,14 +48,14 @@ export default function TestimonialsClient() {
           <div className="flex items-center gap-3">
             <p className="section-label">Client Feedback</p>
             <AnimatePresence>
-              {activeCountry && hasMatch && (
+              {activeCountryName && hasMatch && (
                 <motion.span
                   initial={{ opacity: 0, x: -8 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -8 }}
                   className="text-xs font-mono text-[#E11D48] bg-[#E11D48]/10 border border-[#E11D48]/30 px-2.5 py-1 rounded-full"
                 >
-                  ↑ {countryName[activeCountry] ?? activeCountry} first
+                  ↑ {activeCountryName} first
                 </motion.span>
               )}
             </AnimatePresence>
@@ -59,16 +70,29 @@ export default function TestimonialsClient() {
                   </svg>
                 ))}
               </div>
-              <span className="text-[#525252] text-[0.6rem] font-mono">625 reviews</span>
+              <span className="text-[#525252] text-[0.6rem] font-mono">
+                {source.length} reviews
+              </span>
             </div>
           </div>
         </div>
 
-        <motion.div layout className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-12">
-          {ordered.map((review, i) => (
-            <ReviewCard key={review.username} review={review} index={i} />
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-10">
+          {ordered.slice(0, visible).map((review, i) => (
+            <ReviewCard key={`${review.username}-${i}`} review={review} index={i} />
           ))}
-        </motion.div>
+        </div>
+
+        {visible < ordered.length && (
+          <div className="text-center mb-12">
+            <button
+              onClick={() => setVisible((v) => v + PAGE_SIZE)}
+              className="px-8 py-3 border border-[#171717] hover:border-[#E11D48] text-[#A3A3A3] hover:text-[#E11D48] font-semibold rounded-full transition-all duration-300 text-sm"
+            >
+              Load more reviews ({ordered.length - visible} left)
+            </button>
+          </div>
+        )}
 
         <div className="text-center">
           <div className="flex flex-wrap gap-4 justify-center">

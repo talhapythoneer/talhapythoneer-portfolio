@@ -59,10 +59,9 @@ export default function ReviewCard({
   return (
     <motion.div
       ref={ref}
-      layout
       initial={{ opacity: 0, y: 30 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ delay: (index % 6) * 0.08, duration: 0.6, layout: { duration: 0.4 } }}
+      transition={{ delay: (index % 6) * 0.08, duration: 0.6 }}
       className="card-glass rounded-2xl p-6 flex flex-col gap-4 hover:border-[#E11D48]/30 transition-all duration-300"
     >
       <div className="flex items-center justify-between">
