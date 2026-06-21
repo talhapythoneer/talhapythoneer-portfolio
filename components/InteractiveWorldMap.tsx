@@ -58,7 +58,7 @@ interface PanelState {
 }
 
 const PANEL_W = 320;
-const PANEL_H = 256;
+const PANEL_H = 300;
 
 /** Minimal RFC-4180 CSV parser (handles quoted fields, escaped quotes, newlines). */
 function parseCSV(text: string): Record<string, string>[] {
@@ -116,6 +116,7 @@ export default function InteractiveWorldMap({
 } = {}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [geographies, setGeographies] = useState<any[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [panel, setPanel] = useState<PanelState | null>(null);
@@ -176,7 +177,15 @@ export default function InteractiveWorldMap({
     return map;
   }, [geographies, pathGenerator]);
 
+  const cancelClose = () => {
+    if (closeTimer.current) {
+      clearTimeout(closeTimer.current);
+      closeTimer.current = null;
+    }
+  };
+
   const openPanel = (code: string) => {
+    cancelClose();
     const info = byCode.get(code);
     if (!info) return;
     onCountryHover?.(code);
@@ -203,9 +212,21 @@ export default function InteractiveWorldMap({
   };
 
   const closePanel = () => {
+    cancelClose();
     onCountryHover?.(null);
     setPanel(null);
   };
+
+  // Delay closing so the cursor can travel from the country into the card.
+  const scheduleClose = () => {
+    cancelClose();
+    closeTimer.current = setTimeout(() => {
+      onCountryHover?.(null);
+      setPanel(null);
+    }, 180);
+  };
+
+  useEffect(() => () => cancelClose(), []);
 
   const loading = geographies.length === 0 || reviews.length === 0;
 
@@ -251,7 +272,7 @@ export default function InteractiveWorldMap({
                     fill={fill}
                     style={hasReviews ? { cursor: "pointer" } : undefined}
                     onMouseEnter={() => hasReviews && openPanel(code!)}
-                    onMouseLeave={() => hasReviews && closePanel()}
+                    onMouseLeave={() => hasReviews && scheduleClose()}
                   />
                 );
               })}
@@ -267,7 +288,7 @@ export default function InteractiveWorldMap({
             <button
               key={c.code}
               onMouseEnter={() => openPanel(c.code)}
-              onMouseLeave={closePanel}
+              onMouseLeave={scheduleClose}
               className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-mono transition-all duration-200 ${
                 panel?.code === c.code
                   ? "border-[#E11D48] bg-[#E11D48]/10 text-[#FAFAFA]"
@@ -290,10 +311,12 @@ export default function InteractiveWorldMap({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 6, scale: 0.96 }}
             transition={{ duration: 0.18 }}
-            className="absolute z-30 pointer-events-none bg-[#070707]/95 backdrop-blur-md border border-[#E11D48]/30 rounded-xl shadow-2xl overflow-hidden"
-            style={{ left: panel.x, top: panel.y, width: PANEL_W }}
+            onMouseEnter={cancelClose}
+            onMouseLeave={closePanel}
+            className="absolute z-30 pointer-events-auto bg-[#070707]/95 backdrop-blur-md border border-[#E11D48]/30 rounded-xl shadow-2xl overflow-hidden flex flex-col"
+            style={{ left: panel.x, top: panel.y, width: PANEL_W, maxHeight: PANEL_H }}
           >
-            <div className="flex items-center gap-3 px-4 py-3 border-b border-[#171717] bg-gradient-to-r from-[#E11D48]/10 to-transparent">
+            <div className="flex items-center gap-3 px-4 py-3 border-b border-[#171717] bg-gradient-to-r from-[#E11D48]/10 to-transparent flex-shrink-0">
               <span className="text-2xl drop-shadow-lg">{flagOf(panel.code)}</span>
               <div className="flex flex-col">
                 <span className="text-[#FAFAFA] text-sm font-semibold leading-tight">{panel.name}</span>
@@ -303,14 +326,14 @@ export default function InteractiveWorldMap({
               </div>
             </div>
 
-            <div className="p-3 space-y-3">
-              {panel.reviews.slice(0, 3).map((r, idx) => (
+            <div className="p-3 space-y-3 overflow-y-auto map-panel-scroll">
+              {panel.reviews.map((r, idx) => (
                 <div key={`${r.username}-${idx}`} className="flex gap-2.5">
                   <PanelAvatar review={r} />
                   <div className="min-w-0">
                     <div className="flex items-center gap-1.5">
                       <span className="text-[#FAFAFA] text-xs font-semibold truncate">@{r.username}</span>
-                      <span className="flex gap-px">
+                      <span className="flex gap-px flex-shrink-0">
                         {[...Array(5)].map((_, si) => (
                           <svg key={si} width="9" height="9" viewBox="0 0 12 12" fill="#E11D48">
                             <path d="M6 0l1.35 4.15H12L8.5 6.7l1.35 4.15L6 8.3l-3.85 2.55L3.5 6.7 0 4.15h4.65z" />
@@ -319,16 +342,11 @@ export default function InteractiveWorldMap({
                       </span>
                     </div>
                     <p className="text-[#A3A3A3] text-[0.72rem] leading-snug italic mt-0.5">
-                      &ldquo;{r.comment.length > 100 ? r.comment.slice(0, 100) + "…" : r.comment}&rdquo;
+                      &ldquo;{r.comment}&rdquo;
                     </p>
                   </div>
                 </div>
               ))}
-              {panel.count > 3 && (
-                <p className="text-[#525252] text-[0.68rem] font-mono text-center pt-1">
-                  + {panel.count - 3} more from {panel.name}
-                </p>
-              )}
             </div>
           </motion.div>
         )}
