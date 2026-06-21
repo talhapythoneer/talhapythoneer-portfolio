@@ -51,10 +51,17 @@
 }
 
 html {
+  font-size: 112.5%; /* 18px base — scales all rem-based type/spacing up site-wide */
   scroll-behavior: smooth;
   scrollbar-width: thin;
   scrollbar-color: #E11D48 #000000;
   scroll-snap-type: y mandatory;
+}
+
+@media (max-width: 640px) {
+  html {
+    font-size: 106.25%; /* 17px on small screens to avoid overflow */
+  }
 }
 
 html::-webkit-scrollbar {

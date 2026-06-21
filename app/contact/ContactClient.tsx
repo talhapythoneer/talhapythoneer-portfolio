@@ -144,25 +144,30 @@ export default function ContactClient() {
           ))}
         </div>
 
-        <div className="max-w-2xl mx-auto card-glass rounded-2xl p-8">
-          <h3 className="font-heading font-bold text-xl text-[#FAFAFA] mb-2 text-center">
+        <div className="max-w-2xl mx-auto card-glass rounded-2xl p-8 sm:p-10">
+          <h3 className="font-heading font-bold text-2xl text-[#FAFAFA] mb-3 text-center">
             What to Include in Your Message
           </h3>
-          <p className="text-[#525252] text-sm text-center mb-6">
+          <p className="text-[#A3A3A3] text-base text-center mb-8 leading-relaxed">
             The more detail you share upfront, the faster I can scope and quote your project.
           </p>
           <div className="grid sm:grid-cols-2 gap-4">
             {[
-              { q: "What website(s) to scrape?", note: "URL, login required, frequency" },
-              { q: "What data do you need?", note: "Fields, format, volume estimate" },
-              { q: "Any anti-bot challenges?", note: "Cloudflare, CAPTCHA, JS-heavy?" },
-              { q: "Timeline & budget?", note: "Deadline, budget range, recurring?" },
-            ].map(({ q, note }) => (
-              <div key={q} className="flex gap-3 p-3 bg-[#0A0A0A] rounded-xl border border-[#171717]/50">
-                <span className="text-[#E11D48] text-lg flex-shrink-0 mt-0.5">?</span>
+              { q: "Which website(s) to scrape?", note: "Include URLs, whether login is required, and how often." },
+              { q: "What data do you need?", note: "List the fields, your preferred format, and a volume estimate." },
+              { q: "Any anti-bot challenges?", note: "e.g. Cloudflare, CAPTCHAs, or heavy JavaScript rendering." },
+              { q: "Timeline & budget?", note: "Share your deadline, budget range, and if it's recurring." },
+            ].map(({ q, note }, i) => (
+              <div
+                key={q}
+                className="flex gap-4 p-5 bg-[#0A0A0A] rounded-xl border border-[#171717] transition-colors duration-300 hover:border-[#E11D48]/40"
+              >
+                <span className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-full bg-[#E11D48]/10 text-[#E11D48] text-sm font-bold">
+                  {i + 1}
+                </span>
                 <div>
-                  <p className="text-[#FAFAFA] text-xs font-semibold mb-0.5">{q}</p>
-                  <p className="text-[#525252] text-[0.65rem]">{note}</p>
+                  <p className="text-[#FAFAFA] text-sm font-semibold mb-1.5">{q}</p>
+                  <p className="text-[#A3A3A3] text-[0.8rem] leading-relaxed">{note}</p>
                 </div>
               </div>
             ))}
