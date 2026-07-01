@@ -113,7 +113,6 @@ function ContactCard({ contact, index }: { contact: (typeof contacts)[0]; index:
           transition={{ duration: 0.2 }}
           className="text-[#E11D48] text-lg"
         >
-          →
         </motion.span>
       </div>
 
@@ -135,44 +134,13 @@ export default function ContactClient() {
         <SectionHeading
           label="Get In Touch"
           title="Let's Talk About Your Project"
-          description="Have a web scraping challenge, data pipeline to build, or an AI agent idea? I reply to every serious inquiry within 24 hours."
-        />
-
+         />
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-16">
           {contacts.map((contact, i) => (
             <ContactCard key={contact.label} contact={contact} index={i} />
           ))}
         </div>
 
-        <div className="max-w-2xl mx-auto card-glass rounded-2xl p-8 sm:p-10">
-          <h3 className="font-heading font-bold text-2xl text-[#FAFAFA] mb-3 text-center">
-            What to Include in Your Message
-          </h3>
-          <p className="text-[#A3A3A3] text-base text-center mb-8 leading-relaxed">
-            The more detail you share upfront, the faster I can scope and quote your project.
-          </p>
-          <div className="grid sm:grid-cols-2 gap-4">
-            {[
-              { q: "Which website(s) to scrape?", note: "Include URLs, whether login is required, and how often." },
-              { q: "What data do you need?", note: "List the fields, your preferred format, and a volume estimate." },
-              { q: "Any anti-bot challenges?", note: "e.g. Cloudflare, CAPTCHAs, or heavy JavaScript rendering." },
-              { q: "Timeline & budget?", note: "Share your deadline, budget range, and if it's recurring." },
-            ].map(({ q, note }, i) => (
-              <div
-                key={q}
-                className="flex gap-4 p-5 bg-[#0A0A0A] rounded-xl border border-[#171717] transition-colors duration-300 hover:border-[#E11D48]/40"
-              >
-                <span className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-full bg-[#E11D48]/10 text-[#E11D48] text-sm font-bold">
-                  {i + 1}
-                </span>
-                <div>
-                  <p className="text-[#FAFAFA] text-sm font-semibold mb-1.5">{q}</p>
-                  <p className="text-[#A3A3A3] text-[0.8rem] leading-relaxed">{note}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );

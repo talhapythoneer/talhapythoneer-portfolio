@@ -11,7 +11,7 @@ const roles = [
   "Python Developer",
   "Web Scraping Expert",
   "Agentic AI Engineer",
-  "Data Automation Specialist",
+  "AI Workflow Architect",
 ];
 
 function TypingText() {

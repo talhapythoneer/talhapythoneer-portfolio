@@ -20,7 +20,7 @@ export default function HomeCTA() {
           <span className="section-label block mb-4">Ready to Start?</span>
           <h2 className="font-heading font-bold text-4xl md:text-5xl text-[#FAFAFA] leading-tight mb-6">
             Have data to extract or an<br />
-            <span className="text-gradient">AI system to build?</span>
+            <span className="text-gradient">AI Agent to build?</span>
           </h2>
           <p className="text-[#A3A3A3] text-lg leading-relaxed mb-10 max-w-2xl mx-auto">
             I take on complex projects others turn down. Fast turnaround, clear communication,

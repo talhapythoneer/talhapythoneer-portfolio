@@ -24,32 +24,38 @@ const expertise = [
       "End-to-end data pipelines from extraction to storage to delivery. PostgreSQL, MongoDB, Redis, Pandas — structured and unstructured data at scale.",
     items: ["ETL pipeline design", "Data validation", "API integration", "Real-time data streams", "Custom data formats"],
   },
-  {
-    title: "Full-Stack Dev",
-    description:
-      "Django and React JS for building data-powered web applications — dashboards, admin panels, APIs, and client-facing products.",
-    items: ["Django REST APIs", "React dashboards", "FastAPI backends", "Docker deployment", "Database design"],
-  },
 ];
 
 const industries = [
-  { name: "Real Estate", note: "Property listings, market data, lead gen" },
-  { name: "E-commerce", note: "Product catalogs, pricing intelligence, reviews" },
-  { name: "Legal & Court Data", note: "Case records, docket scraping, compliance data" },
+  { name: "Real Estate", note: "Commercial and residential listings, county records, auctions" },
+  { name: "E-commerce and Retail", note: "Product catalogs, pricing intelligence, competitor data" },
+  { name: "Legal and Legal Tech", note: "Law firm data, court records, compliance, contracts" },
   { name: "Fintech", note: "Market data, financial indicators, crypto" },
-  { name: "Job Boards", note: "Indeed, LinkedIn, Glassdoor talent data" },
-  { name: "Business Directories", note: "Yellow Pages, Google Maps, local leads" },
-  { name: "Healthcare", note: "Provider directories, clinical trials, research" },
-  { name: "NFT & Crypto", note: "OpenSea, CoinMarketCap, on-chain data" },
+  { name: "Job Boards and HR Recruiting", note: "Indeed, LinkedIn, Glassdoor, Upwork, salary benchmarking" },
+  { name: "Business Directories", note: "Yellow Pages, Clutch agencies, local leads" },
+  { name: "Healthcare", note: "Medical products, care homes, provider directories" },
+  { name: "NFT and Crypto", note: "OpenSea, CoinMarketCap, on chain data" },
+  { name: "Sports Analytics and Football", note: "800k+ match database, clubs, players, stadiums" },
+  { name: "B2B Sales and Lead Generation", note: "Trade show exhibitors, agency data, outreach lists" },
+  { name: "Digital Marketing and SEO", note: "Traffic data, competitor benchmarking, blog migrations" },
+  { name: "Hospitality and Short Term Rentals", note: "Booking.com reviews, Airbnb pricing, revenue data" },
+  { name: "Events and Nightlife", note: "Resident Advisor listings, artist booking, venue data" },
+  { name: "Freelance and Gig Economy", note: "Upwork job data, rate benchmarking, demand tracking" },
+  { name: "Auction and Procurement", note: "Auction listings, price history, government auctions" },
+  { name: "Film and Entertainment", note: "IMDB contact data, production tracking" },
+  { name: "Construction and Home Improvement", note: "Home Depot pricing, permits, zoning data" },
+  { name: "Digital Publishing and Content", note: "Blog migrations, site archival, content licensing" },
+  { name: "Government and Public Records", note: "County websites, property tax, zoning, permits" },
 ];
 
 const timeline = [
-  { year: "2018", event: "Started Python freelancing — first web scraping gigs" },
-  { year: "2020", event: "Top Rated on Fiverr; 200+ projects completed" },
-  { year: "2021", event: "Expanded into Agentic AI and LLM integrations" },
-  { year: "2022", event: "Fiverr Pro Vetted status; joined Upwork Top Rated" },
-  { year: "2023", event: "Built multi-agent systems with LangGraph & CrewAI" },
-  { year: "2024", event: "625+ reviews, 1500+ projects, clients in 40+ countries" },
+  { year: "2020", event: "Started Python freelancing — first web scraping gigs" },
+  { year: "2021", event: "Level 2 Fiverr Seller; 100+ projects completed" },
+  { year: "2022", event: "Top Rated on Fiverr; 400+ projects completed" },
+  { year: "2023", event: "Top Rated on Upwork; 600+ projects completed" },
+  { year: "2024", event: "Pro Vetted on Fiverr; 1000+ projects completed" },
+  { year: "2025", event: "Built multi-agent systems with LangGraph & CrewAI" },
+  { year: "2026", event: "625+ reviews, 1500+ projects, clients in 40+ countries" },
 ];
 
 function ExpertiseCard({ item, index }: { item: (typeof expertise)[0]; index: number }) {
@@ -92,7 +98,7 @@ export default function AboutClient() {
         <SectionHeading
           label="About"
           title="Talha Pythoneer"
-          description="Python developer. Data engineer. AI architect. 6 years of getting complex automation done."
+          description="Python developer. Web Scraper. AI architect. 6+ years of experice!"
         />
 
         <div className="grid lg:grid-cols-5 gap-12 mb-24">
@@ -118,8 +124,7 @@ export default function AboutClient() {
 
             <div className="w-full card-glass rounded-2xl p-5 space-y-3">
               {[
-                { label: "Location", value: "Pakistan (GMT+5)" },
-                { label: "Languages", value: "English, French, Spanish" },
+                { label: "Languages", value: "English, Urdu" },
                 { label: "Experience", value: "6+ Years" },
                 { label: "Projects", value: "1500+" },
                 { label: "Rating", value: "4.9 / 5.0" },

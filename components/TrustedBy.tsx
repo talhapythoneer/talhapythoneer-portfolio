@@ -24,7 +24,6 @@ export default function TrustedBy() {
           <p className="text-[#A3A3A3] text-lg max-w-2xl mx-auto leading-relaxed">
             Universities, startups, SaaS platforms, law firms, and enterprise clients from 40+ countries.
           </p>
-          <p className="text-[#525252] text-xs font-mono mt-4">← drag to slide →</p>
         </div>
       </div>
 

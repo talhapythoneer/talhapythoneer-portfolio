@@ -26,7 +26,7 @@ export default function HomeTestimonialsPreview() {
         <SectionHeading
           label="Client Reviews"
           title="What Clients Say"
-          description="Every review is from a verified Fiverr or Upwork engagement — no fakes, no cherry-picked."
+          description="Every review is from a verified Fiverr or Upwork Project!"
         />
 
         <div className="grid md:grid-cols-3 gap-6 mb-12">

@@ -8,33 +8,34 @@ import SectionHeading from "./SectionHeading";
 import ProjectModal from "./portfolio/ProjectModal";
 import { projects, type Project } from "@/data/projects";
 
+
 const featured = [
   {
     id: 1,
-    title: "Real Estate Scraper",
-    category: "Web Scraping",
-    description: "Extracting comprehensive property data from Redfin — prices, locations, historical trends — at scale with anti-bot bypass.",
-    stack: ["Scrapy", "Selenium", "PostgreSQL", "GeoPandas"],
-    imagePath: "/assets/img/projects/redfin.png",
-    stat: "50k+ listings/day",
-  },
-  {
-    id: 8,
-    title: "AI Research Assistant",
+    title: "Pima County Legal AI Agent",
     category: "Agentic AI",
-    description: "Multi-agent system that reads research papers, extracts findings, maps connections, and generates literature reviews autonomously.",
-    stack: ["LangChain", "OpenAI API", "Pinecone", "FastAPI"],
-    imagePath: "/assets/img/projects/cake.png",
-    stat: "Weeks → Hours",
+    description: "Daily automated agent pulling distressed property signals from county public records.",
+    stack: ["Python", "Playwright", "Groq API", "GPT-OSS-120B", "Pandas", "Google Sheets API"],
+    imagePath: "/assets/img/projects/pima-county.png",
+    stat: "Daily → Automated",
   },
   {
-    id: 4,
-    title: "Yellowpages Scraper",
+    id: 5,
+    title: "400+ Law Firm Websites Pipeline",
     category: "Web Scraping",
-    description: "B2B lead generation engine extracting business contact data, hours, reviews, and categories across any geographic area.",
-    stack: ["BeautifulSoup", "Requests", "MongoDB", "Redis"],
-    imagePath: "/assets/img/projects/yellowpages.png",
-    stat: "90% time saved",
+    description: "Structured data extraction pipeline across 400 individual law firm websites for a legal intelligence company.",
+    stack: ["Python", "BeautifulSoup", "Scrapy", "Proxy Rotation", "Pandas", "Excel"],
+    imagePath: "/assets/img/projects/law-firms.png",
+    stat: "400+ Sources",
+  },
+  {
+    id: 12,
+    title: "Indeed, LinkedIn and ZipRecruiter Jobs Scraper",
+    category: "Web Scraping",
+    description: "Multi-platform job aggregation scraper with keyword filtering and deduplication across three major job boards.",
+    stack: ["Python", "Playwright", "Keyword Filtering", "Deduplication Logic", "Pandas"],
+    imagePath: "/assets/img/projects/indeed.png",
+    stat: "3 Platforms",
   },
 ];
 
@@ -154,7 +155,7 @@ export default function FeaturedWork() {
         <SectionHeading
           label="Selected Work"
           title="Featured Projects"
-          description="A handful of projects from 1500+ deliveries. Each one solved a real business problem. Click any project for full details."
+          description="A handful of projects from 1500+ deliveries. Each one solved a real business problem."
         />
 
         <div
