@@ -259,7 +259,7 @@ export const projects: Project[] = [
     id: 12,
     projectType: "Web Scraping",
     title: "Indeed, LinkedIn and ZipRecruiter Jobs Scraper",
-    imagePath: "/assets/img/projects/jobboards.png",
+    imagePath: "/assets/img/projects/indeed.png",
     shortDescription: "Multi-platform job aggregation scraper with keyword filtering and deduplication across three major job boards",
     toolsStack: ["Python", "Playwright", "Keyword Filtering", "Deduplication Logic", "Pandas"],
     features: [
@@ -473,7 +473,7 @@ export const projects: Project[] = [
   {
     id: 22,
     projectType: "Web Scraping",
-    title: "Wix Blog Migration Pipeline",
+    title: "DANOS - Wix Blog Migration Pipeline",
     imagePath: "/assets/img/projects/wix.png",
     shortDescription: "Automated pipeline extracting and republishing a full blog from a legacy CMS to a new Wix website",
     toolsStack: ["Python", "Web Scraping", "Wix API", "Metadata Preservation", "Bulk Upload"],
