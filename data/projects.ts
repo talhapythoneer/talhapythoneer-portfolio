@@ -15,7 +15,7 @@ export const projects: Project[] = [
   {
     id: 1,
     projectType: "Web Scraping",
-    title: "Indeed Scraper",
+    title: "Indeed JObs Scraper",
     imagePath: "/assets/img/projects/indeed.png",
     shortDescription: "Scraping Jobs from Indeed",
     toolsStack: ["Python", "BeautifulSoup", "Selenium", "Pandas", "Requests"],
