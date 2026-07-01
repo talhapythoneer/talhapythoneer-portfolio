@@ -3,7 +3,7 @@
     {
       "id": 1,
       "projectType": "Web Scraping",
-      "title": "Indeed Scraper",
+      "title": "Indeed Jobs Crawler",
       "imagePath": "assets/img/projects/indeed.png",
       "shortDescription": "Scraping Jobs from Indeed",
       "toolsStack": ["Python", "BeautifulSoup", "Selenium", "Pandas", "Requests"],
